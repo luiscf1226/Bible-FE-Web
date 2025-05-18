@@ -1,26 +1,114 @@
-@import "tailwindcss";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --color-primary: #0EA5E9; /* Sky blue */
+  --color-primary-dark: #0284C7; /* Deep sky blue */
+  --color-primary-light: #38BDF8; /* Light sky blue */
+  
+  --color-secondary: #B45309; /* Warm amber */
+  --color-secondary-dark: #92400E; /* Deep amber */
+  --color-secondary-light: #F59E0B; /* Light amber */
+  
+  --color-accent: #059669; /* Emerald green */
+  --color-accent-dark: #047857; /* Deep emerald */
+  --color-accent-light: #10B981; /* Light emerald */
+  
+  --color-neutral: #F8FAFC; /* Very light gray for page background */
+  --color-neutral-dark: #E2E8F0; /* Slightly darker neutral */
+  
+  --color-text: #0F172A; /* Darker text for better contrast */
+  --color-text-light: #475569; /* Softer gray for subheadings */
+  --color-text-on-dark: #FFFFFF;
+  --color-text-on-dark-muted: #E2E8F0;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --font-primary: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* More Vibrant Gradients for Cards */
+  --gradient-bible-card: linear-gradient(135deg, #0369A1 0%, #0EA5E9 50%, #38BDF8 100%);
+  --gradient-emotion-card: linear-gradient(135deg, #B45309 0%, #F59E0B 50%, #FCD34D 100%);
+  --gradient-character-card: linear-gradient(135deg, #047857 0%, #059669 50%, #10B981 100%);
+  --gradient-page-background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-primary);
+  background: var(--gradient-page-background);
+  color: var(--color-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+section {
+  margin-bottom: 2.5rem;
+}
+
+/* Enhanced Card Styles */
+.soul-card-base {
+  @apply rounded-2xl shadow-lg overflow-hidden transition-all duration-300 bg-white;
+  border: 1px solid var(--color-neutral-dark);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.soul-card-base:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 16px 32px rgba(44, 62, 80, 0.12);
+}
+
+/* Enhanced Button Styles */
+.btn {
+  @apply font-semibold py-3 px-6 rounded-lg w-full transition-all duration-300 ease-in-out shadow-md;
+  color: var(--color-text-on-dark);
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.2);
+}
+
+/* Typography classes */
+.title-large-global {
+  @apply text-3xl sm:text-4xl font-extrabold mb-3 tracking-tight;
+  color: var(--color-text);
+}
+
+.title-medium-global {
+  @apply text-xl sm:text-2xl font-bold mb-2;
+  color: var(--color-text);
+}
+
+.body-text-global {
+  @apply text-base sm:text-lg;
+  color: var(--color-text-light);
+  line-height: 1.65;
+}
+
+.scripture-quote-global {
+  @apply italic text-sm mt-2;
+  color: var(--color-secondary-dark);
+}
+
+/* Responsive utility classes */
+@media (max-width: 640px) {
+  .title-large-global {
+    font-size: 2.25rem;
+  }
+  .title-medium-global {
+    font-size: 1.35rem;
+  }
 }

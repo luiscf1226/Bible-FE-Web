@@ -1,0 +1,220 @@
+.soulCard {
+  --header-color: var(--color-primary);
+  --button-color: var(--color-primary);
+  --button-hover-color: var(--color-primary-dark);
+  --title-color: var(--color-primary-dark);
+  transition: box-shadow 0.3s, transform 0.3s, border-color 0.3s;
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-neutral-dark);
+  box-shadow: 0 8px 24px rgba(44, 62, 80, 0.05);
+  background: #fff;
+  position: relative;
+}
+.soulCard:hover {
+  transform: translateY(-5px) scale(1.01);
+  box-shadow: 0 12px 30px rgba(44, 62, 80, 0.1);
+  border-color: var(--color-primary);
+}
+.header {
+  height: 0.75rem;
+  background: linear-gradient(90deg, var(--header-color), var(--color-primary-light), var(--header-color));
+  border-top-left-radius: 1.25rem;
+  border-top-right-radius: 1.25rem;
+}
+.iconContainer {
+  background: linear-gradient(135deg, var(--color-primary-light) 60%, var(--color-secondary-light) 100%);
+  box-shadow: 0 4px 24px 0 rgba(91,146,165,0.10);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 3.5rem;
+  width: 3.5rem;
+  margin: 0 auto 1rem auto;
+  transition: box-shadow 0.3s;
+  overflow: hidden;
+}
+.soulCard:hover .iconContainer {
+  box-shadow: 0 0 0 4px var(--header-color), 0 8px 32px 0 rgba(91,146,165,0.18);
+}
+.button {
+  background: linear-gradient(90deg, var(--button-color), var(--button-hover-color));
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px 0 rgba(91,146,165,0.10);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.button:hover {
+  background: linear-gradient(90deg, var(--button-hover-color), var(--button-color));
+  box-shadow: 0 4px 24px 0 rgba(91,146,165,0.15);
+}
+
+/* Colorful Reference Card Styles - Main focus for current design */
+.referenceCard {
+  border-radius: 1.5rem;
+  padding: 3.5rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 100%;
+  cursor: pointer;
+  color: #e2e8f0;
+  position: relative;
+  overflow: hidden;
+  min-height: 420px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.2), 0 15px 25px rgba(0,0,0,0.15);
+}
+
+/* Applying specific gradient backgrounds */
+.referenceBible {
+  background: linear-gradient(135deg, #2c5282 0%, #1a365d 100%);
+}
+
+.referenceEmotion {
+  background: linear-gradient(135deg, #553c9a 0%, #44337a 100%);
+}
+
+.referenceCharacter {
+  background: linear-gradient(135deg, #2c7a7b 0%, #234e52 100%);
+}
+
+/* Subtle glassy border effect */
+.referenceCard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
+  -webkit-mask: 
+     linear-gradient(#fff 0 0) content-box, 
+     linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  z-index: 0;
+  opacity: 0.9;
+  transition: all 0.4s ease;
+}
+
+.referenceCard:hover {
+  transform: translateY(-15px) scale(1.04);
+  box-shadow: 0 35px 70px rgba(0,0,0,0.25), 0 25px 35px rgba(0,0,0,0.2);
+}
+
+.referenceCard:hover::before {
+  opacity: 1;
+  background: linear-gradient(145deg, rgba(255,255,255,0.5), rgba(255,255,255,0.2));
+}
+
+.referenceIconContainer {
+  margin-bottom: 2.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  padding: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+  position: relative;
+  z-index: 1;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(8px);
+  width: 10rem;
+  height: 10rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.referenceCard:hover .referenceIconContainer {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.15) rotate(8deg);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.referenceContent {
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.referenceTitle {
+  font-size: 2.75rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  color: #e2e8f0;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.referenceDescription {
+  font-size: 1.75rem;
+  line-height: 1.6;
+  color: #cbd5e0;
+  margin: 0;
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .referenceCard {
+    padding: 3rem 2rem;
+    min-height: 380px;
+  }
+  .referenceTitle {
+    font-size: 2.5rem;
+  }
+  .referenceDescription {
+    font-size: 1.5rem;
+  }
+  .referenceIconContainer {
+    margin-bottom: 2rem;
+    padding: 1.75rem;
+    width: 8rem;
+    height: 8rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .referenceCard {
+    border-radius: 1.25rem;
+    padding: 2.5rem 1.75rem;
+    min-height: 340px;
+  }
+  .referenceTitle {
+    font-size: 2.25rem;
+  }
+  .referenceDescription {
+    font-size: 1.35rem;
+  }
+  .referenceIconContainer {
+    margin-bottom: 1.75rem;
+    padding: 1.5rem;
+    width: 7rem;
+    height: 7rem;
+  }
+}
+
+.referenceIconContainer img,
+.iconContainer img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+  transform: scale(1.6);
+}
+
+.referenceCard:hover referenceIconContainer img,
+.soulCard:hover .iconContainer img {
+  transform: scale(1.6);
+}
