@@ -15,6 +15,7 @@ interface SoulCardProps {
   isReferenceDesign?: boolean;
   cardStyle?: 'bible' | 'emotion' | 'character';
   onButtonClick?: () => void;
+  onClick?: () => void;
 }
 
 const SoulCard: React.FC<SoulCardProps> = ({
@@ -29,6 +30,7 @@ const SoulCard: React.FC<SoulCardProps> = ({
   isReferenceDesign = false,
   cardStyle,
   onButtonClick,
+  onClick,
 }) => {
   if (isReferenceDesign) {
     const cardStyleClass = cardStyle 
@@ -36,7 +38,7 @@ const SoulCard: React.FC<SoulCardProps> = ({
       : '';
 
     return (
-      <div className={`${styles.referenceCard} ${cardStyleClass}`}>
+      <div className={`${styles.referenceCard} ${cardStyleClass}`} onClick={onClick}>
         <div className={styles.referenceIconContainer}>
           {icon}
         </div>
@@ -52,6 +54,7 @@ const SoulCard: React.FC<SoulCardProps> = ({
     <div
       className={`soul-card w-full max-w-sm mx-auto ${styles.soulCard}`}
       style={{ ['--header-color' as any]: headerColor, ['--button-color' as any]: buttonColor, ['--button-hover-color' as any]: buttonHoverColor, ['--title-color' as any]: titleColor }}
+      onClick={onClick}
     >
       <div className={`soul-card-header ${styles.header}`} />
       <div className="soul-card-body h-64 flex flex-col justify-between">
