@@ -104,18 +104,56 @@
   .characterCard {
     max-width: 280px;
     padding: 1.5rem;
+    border-radius: 1.25rem;
   }
 
   .imageContainer {
     width: 160px;
     height: 160px;
+    margin-bottom: 1.25rem;
   }
 
   .name {
     font-size: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .description {
     font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .chatButton {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .characterCard {
+    max-width: 240px;
+    padding: 1.25rem;
+    border-radius: 1rem;
+  }
+
+  .imageContainer {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 1rem;
+  }
+
+  .name {
+    font-size: 1.35rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .description {
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+  }
+
+  .chatButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 } 

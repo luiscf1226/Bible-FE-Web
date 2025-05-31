@@ -63,7 +63,11 @@
 
 @media (max-width: 768px) {
   .navContainer {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
   }
   
   .navLinks {
@@ -72,5 +76,23 @@
   
   .navLink {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navContainer {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .logo {
+    font-size: 1.25rem;
+  }
+  
+  .navLinks {
+    gap: 0.75rem;
+  }
+  
+  .navLink {
+    font-size: 0.85rem;
   }
 } 

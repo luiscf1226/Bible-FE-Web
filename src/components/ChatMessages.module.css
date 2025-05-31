@@ -99,4 +99,52 @@
 
 .messagesContainer::-webkit-scrollbar-thumb:hover {
   background: #4a5568;
+}
+
+@media (max-width: 768px) {
+  .messagesContainer {
+    padding: 0.75rem;
+  }
+
+  .message {
+    max-width: 90%;
+    padding: 0.75rem;
+  }
+
+  .messageContent {
+    font-size: 0.95rem;
+  }
+
+  .timestamp {
+    font-size: 0.7rem;
+  }
+
+  .verse {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .messagesContainer {
+    padding: 0.5rem;
+  }
+
+  .message {
+    max-width: 95%;
+    padding: 0.625rem;
+  }
+
+  .messageContent {
+    font-size: 0.9rem;
+  }
+
+  .timestamp {
+    font-size: 0.65rem;
+  }
+
+  .verse {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
 } 

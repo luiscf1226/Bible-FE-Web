@@ -131,21 +131,21 @@
 
 @media (max-width: 768px) {
   .chatContainer {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 
   .header {
     padding: 1.5rem 1rem;
     margin-top: 1rem;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .header h1 {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .feelingSelector {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 0.75rem;
     padding: 0;
   }
@@ -158,9 +158,39 @@
   .emoji {
     font-size: 1.25rem;
   }
+}
+
+@media (max-width: 480px) {
+  .chatContainer {
+    padding: 0.5rem;
+  }
+
+  .header {
+    padding: 1.25rem 0.75rem;
+    margin-top: 0.75rem;
+    gap: 1rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .feelingSelector {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .feelingButton {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.85rem;
+  }
+
+  .emoji {
+    font-size: 1.1rem;
+  }
 
   .errorAlert {
-    width: 90%;
-    padding: 0.75rem 1.5rem;
+    width: 95%;
+    padding: 0.625rem 1.25rem;
   }
 } 
