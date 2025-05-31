@@ -35,12 +35,24 @@ export const sendCharacterMessage = async (
       throw new Error('API_BASE_URL is not configured. Please check your .env.local file.');
     }
 
+    if (!process.env.NEXT_PUBLIC_API_KEY) {
+      throw new Error('API_KEY is not configured. Please check your environment variables.');
+    }
+
+    // Debug logs
+    console.log('Character Chat - API Key:', process.env.NEXT_PUBLIC_API_KEY);
+    console.log('Character Chat - API Base URL:', API_BASE_URL);
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+    };
+
+    console.log('Character Chat - Request Headers:', headers);
+
     const response = await fetch(`${API_BASE_URL}/bible/characters/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-      },
+      headers,
       body: JSON.stringify({
         user_id: userId,
         character_name: characterName,
@@ -50,6 +62,12 @@ export const sendCharacterMessage = async (
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('Character Chat - Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: errorText
+      });
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
