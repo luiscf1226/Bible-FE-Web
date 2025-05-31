@@ -1,11 +1,11 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import SoulCard from '@/components/SoulCard';
 import BiblicalCharactersGrid from '@/components/BiblicalCharactersGrid';
 import styles from './home.module.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function SoulVerseDashboard() {
+function MainContent() {
   const [showCharacters, setShowCharacters] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,5 +96,23 @@ export default function SoulVerseDashboard() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function SoulVerseDashboard() {
+  return (
+    <Suspense fallback={
+      <div className={styles.pageBackground}>
+        <div className={styles.container}>
+          <main className={styles.mainContent}>
+            <div className={styles.heroSection}>
+              <h2 className={styles.mainHeading}>Cargando...</h2>
+            </div>
+          </main>
+        </div>
+      </div>
+    }>
+      <MainContent />
+    </Suspense>
   );
 }
