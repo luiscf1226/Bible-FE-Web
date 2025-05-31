@@ -30,7 +30,7 @@ export const sendFeelingMessage = async (
     const headers = {
       'Content-Type': 'application/json',
       'accept': 'application/json',
-      'Authorization': process.env.NEXT_PUBLIC_API_KEY,
+      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
     };
 
     console.log('Request Headers:', headers);
