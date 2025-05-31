@@ -19,13 +19,25 @@ export const sendFeelingMessage = async (
       throw new Error('API_BASE_URL is not configured. Please check your .env.local file.');
     }
 
+    if (!process.env.NEXT_PUBLIC_API_KEY) {
+      throw new Error('API_KEY is not configured. Please check your environment variables.');
+    }
+
+    // Debug logs
+    console.log('API Key:', process.env.NEXT_PUBLIC_API_KEY);
+    console.log('API Base URL:', API_BASE_URL);
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'accept': 'application/json',
+      'Authorization': process.env.NEXT_PUBLIC_API_KEY,
+    };
+
+    console.log('Request Headers:', headers);
+
     const response = await fetch(`${API_BASE_URL}/api/v1/feeling`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
-      },
+      headers,
       body: JSON.stringify({
         feeling,
         text,
@@ -34,6 +46,12 @@ export const sendFeelingMessage = async (
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        body: errorText
+      });
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
