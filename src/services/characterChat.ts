@@ -45,7 +45,7 @@ export const sendCharacterMessage = async (
 
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': process.env.NEXT_PUBLIC_API_KEY,
+      'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
     console.log('Character Chat - Request Headers:', headers);
