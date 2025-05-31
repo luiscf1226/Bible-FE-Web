@@ -24,16 +24,10 @@ export const getVerseExplanation = async (
       throw new Error('API_KEY is not configured. Please check your environment variables.');
     }
 
-    // Debug logs
-    console.log('Verse Explanation - API Key:', process.env.NEXT_PUBLIC_API_KEY);
-    console.log('Verse Explanation - API Base URL:', API_BASE_URL);
-
     const headers = {
       'Content-Type': 'application/json',
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
-
-    console.log('Verse Explanation - Request Headers:', headers);
 
     const response = await fetch(`${API_BASE_URL}/verses/explain`, {
       method: 'POST',
@@ -46,12 +40,6 @@ export const getVerseExplanation = async (
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Verse Explanation - Error Response:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
-        body: errorText
-      });
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
