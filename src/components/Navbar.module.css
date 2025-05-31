@@ -25,6 +25,12 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.logo:hover {
+  opacity: 0.8;
 }
 
 .navLinks {
@@ -40,6 +46,10 @@
   font-weight: 500;
   transition: color 0.3s ease;
   position: relative;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
 }
 
 .navLink:hover {

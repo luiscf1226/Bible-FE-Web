@@ -1,19 +1,35 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './Navbar.module.css';
 
 const Navbar = () => {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
+  const handleCharactersNavigation = () => {
+    router.push('/?view=characters');
+  };
+
+  const handleHomeNavigation = () => {
+    router.push('/');
+  };
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.navContainer}>
-        <div className={styles.logo}>
+        <div className={styles.logo} onClick={handleHomeNavigation}>
           SoulVerse
         </div>
         <div className={styles.navLinks}>
-          <a href="/" className={styles.navLink}>Inicio</a>
-          <a href="/bible" className={styles.navLink}>Biblia</a>
-          <a href="/emotions" className={styles.navLink}>Emociones</a>
-          <a href="/characters" className={styles.navLink}>Personajes</a>
+          <button onClick={handleHomeNavigation} className={styles.navLink}>Inicio</button>
+          <button onClick={() => handleNavigation('/bible')} className={styles.navLink}>Biblia</button>
+          <button onClick={() => handleNavigation('/chat')} className={styles.navLink}>Emociones</button>
+          <button onClick={handleCharactersNavigation} className={styles.navLink}>Personajes</button>
         </div>
       </div>
     </nav>

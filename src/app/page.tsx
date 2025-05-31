@@ -1,13 +1,19 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SoulCard from '@/components/SoulCard';
 import BiblicalCharactersGrid from '@/components/BiblicalCharactersGrid';
 import styles from './home.module.css';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function SoulVerseDashboard() {
   const [showCharacters, setShowCharacters] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const view = searchParams.get('view');
+    setShowCharacters(view === 'characters');
+  }, [searchParams]);
 
   return (
     <div className={styles.pageBackground}>
@@ -62,7 +68,10 @@ export default function SoulVerseDashboard() {
                   buttonHoverColor=""
                   isReferenceDesign={true}
                   cardStyle="character"
-                  onClick={() => setShowCharacters(true)}
+                  onClick={() => {
+                    setShowCharacters(true);
+                    router.push('/?view=characters');
+                  }}
                 />
               </div>
               
@@ -73,8 +82,11 @@ export default function SoulVerseDashboard() {
           ) : (
             <div className={styles.charactersSection}>
               <button 
-                className={styles.backButton}
-                onClick={() => setShowCharacters(false)}
+                className={`${styles.backButton} mt-16`}
+                onClick={() => {
+                  setShowCharacters(false);
+                  router.push('/');
+                }}
               >
                 ← Volver
               </button>
