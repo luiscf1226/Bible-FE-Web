@@ -30,7 +30,7 @@ export const getVerseExplanation = async (
 
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`,
+      'Authorization': process.env.NEXT_PUBLIC_API_KEY,
     };
 
     console.log('Verse Explanation - Request Headers:', headers);
