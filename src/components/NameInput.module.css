@@ -1,0 +1,165 @@
+.nameInputOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.nameInputContainer {
+  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.5s ease-out;
+}
+
+.nameInputContent {
+  text-align: center;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  color: #cbd5e0;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.inputWrapper {
+  position: relative;
+}
+
+.input {
+  width: 90%;
+  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 0.75rem;
+  color: #fff;
+  transition: all 0.3s ease;
+}
+
+.input:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.input::placeholder {
+  color: #a0aec0;
+}
+
+.inputBorder {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #2c5282 0%, #4299e1 50%, #2c5282 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.input:focus + .inputBorder {
+  transform: scaleX(1);
+}
+
+.submitButton {
+  width: 100%;
+  background: linear-gradient(135deg, #2c5282 0%, #1a365d 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.submitting {
+  background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+  .nameInputContainer {
+    padding: 2rem;
+    width: 95%;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .input {
+    padding: 0.875rem 1.25rem;
+    font-size: 1rem;
+  }
+
+  .submitButton {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+  }
+} 

@@ -1,3 +1,5 @@
+import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitContext';
+
 interface FeelingResponse {
   verse: string;
   devotional: string;
@@ -12,8 +14,16 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const sendFeelingMessage = async (
   feeling: string,
-  text: string
+  text: string,
+  userName: string
 ): Promise<FeelingResponse> => {
+  const endpoint = 'feelingChat';
+
+  // Check rate limit
+  if (handleRateLimit(endpoint, userName)) {
+    throw new Error('Rate limit exceeded');
+  }
+
   try {
     if (!API_BASE_URL) {
       throw new Error('API_BASE_URL is not configured. Please check your .env.local file.');
@@ -43,6 +53,9 @@ export const sendFeelingMessage = async (
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
+    // Increment rate limit counter after successful request
+    incrementRateLimitCount(endpoint, userName);
+
     const data: FeelingResponse = await response.json();
     return data;
   } catch (error) {
@@ -50,6 +63,37 @@ export const sendFeelingMessage = async (
     if (error instanceof Error) {
       throw new Error(`Failed to send feeling message: ${error.message}`);
     }
+    throw error;
+  }
+};
+
+export const getFeelingChat = async (feeling: string, message: string, userName: string) => {
+  const endpoint = 'feelingChat';
+
+  // Check rate limit
+  if (handleRateLimit(endpoint, userName)) {
+    throw new Error('Rate limit exceeded');
+  }
+
+  try {
+    const response = await fetch('/api/feeling-chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ feeling, message }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get feeling chat response');
+    }
+
+    // Increment rate limit counter after successful request
+    incrementRateLimitCount(endpoint, userName);
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting feeling chat response:', error);
     throw error;
   }
 }; 

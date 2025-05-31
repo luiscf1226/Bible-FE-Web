@@ -1,7 +1,10 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import styles from './bible.module.css';
-import { getVerseExplanation } from '@/services/verseExplanation';
+import { getVerseExplanationMultiple } from '@/services/verseExplanation';
+import { useUserName } from '@/contexts/UserNameContext';
+import { useRateLimit } from '@/contexts/RateLimitContext';
+import RateLimitAlert from '@/components/RateLimitAlert';
 
 interface BibleVerse {
   abbrev: string;
@@ -96,11 +99,14 @@ const normalizeText = (text: string): string => {
 };
 
 export default function BibleReader() {
+  const { userName } = useUserName();
+  const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const [bibleData, setBibleData] = useState<BibleVerse[]>([]);
   const [selectedBook, setSelectedBook] = useState<string>('gn');
   const [selectedChapter, setSelectedChapter] = useState<number>(1);
   const [selectedVerses, setSelectedVerses] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
+  const [explanationLoading, setExplanationLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fontSize, setFontSize] = useState(16);
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,11 +123,6 @@ export default function BibleReader() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [response, setResponse] = useState<string | null>(null);
-  const [showRateLimitAlert, setShowRateLimitAlert] = useState(false);
-  const [rateLimitInfo, setRateLimitInfo] = useState<{
-    remainingTime: string;
-    resetTime: string;
-  } | null>(null);
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -227,6 +228,12 @@ export default function BibleReader() {
 
   const handleExplanationSubmit = async () => {
     try {
+      setExplanationLoading(true);
+      if (!userName) {
+        setError('Por favor, ingresa tu nombre para continuar');
+        return;
+      }
+
       // Format verses as "Book Chapter:Verse"
       const formattedVerses = selectedVerses.map(verse => 
         `${decodeBookName(selectedBook)} ${selectedChapter}:${verse}`
@@ -237,39 +244,24 @@ export default function BibleReader() {
         currentChapter[verse - 1]
       );
 
-      const result = await getVerseExplanation(formattedVerses, verseTexts);
+      const result = await getVerseExplanationMultiple(formattedVerses, userName, verseTexts);
       setResponse(result.explanation);
     } catch (error) {
       console.error('Error getting verse explanation:', error);
       if (error instanceof Error) {
         const errorMessage = error.message;
-        if (errorMessage.includes('429')) {
-          try {
-            // Extract the JSON part from the error message
-            const jsonStr = errorMessage.split('message: ')[1];
-            if (jsonStr) {
-              const errorData = JSON.parse(jsonStr);
-              if (errorData.detail) {
-                setRateLimitInfo({
-                  remainingTime: errorData.detail.remaining_time,
-                  resetTime: errorData.detail.reset_time
-                });
-                setShowRateLimitAlert(true);
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing rate limit info:', e);
-            // Fallback message if parsing fails
-            setRateLimitInfo({
-              remainingTime: '24 horas',
-              resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            });
-            setShowRateLimitAlert(true);
-          }
+        if (errorMessage.includes('Rate limit exceeded')) {
+          setRateLimitInfo({
+            remainingTime: '24 horas',
+            endpoint: 'verseExplanation'
+          });
+          setShowRateLimitAlert(true);
         } else {
           setResponse('Lo siento, hubo un error al obtener la explicación. Por favor, intenta de nuevo.');
         }
       }
+    } finally {
+      setExplanationLoading(false);
     }
   };
 
@@ -326,38 +318,14 @@ export default function BibleReader() {
 
   return (
     <div className={styles.container}>
-      {showRateLimitAlert && (
-        <div className={styles.rateLimitAlert}>
-          <div className={styles.rateLimitContent}>
-            <h3>Límite de uso alcanzado</h3>
-            <p>
-              Has alcanzado el límite de 5 explicaciones por 24 horas. 
-              {rateLimitInfo && (
-                <>
-                  <br />
-                  Tiempo restante: {rateLimitInfo.remainingTime}
-                </>
-              )}
-            </p>
-            <p>
-              Para continuar usando el servicio sin límites, puedes:
-              <br />
-              1. Esperar 24 horas para que se reinicie tu límite
-              <br />
-              2. Contactar con nosotros para obtener acceso completo
-            </p>
-            <button 
-              className={styles.rateLimitButton}
-              onClick={() => {
-                setShowRateLimitAlert(false);
-                setRateLimitInfo(null);
-              }}
-            >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
+      <RateLimitAlert
+        showRateLimitAlert={showRateLimitAlert}
+        rateLimitInfo={rateLimitInfo}
+        onClose={() => {
+          setShowRateLimitAlert(false);
+          setRateLimitInfo(null);
+        }}
+      />
       <div className={styles.toolbar}>
         <div className={styles.controls}>
           <div className={styles.selectGroup}>
@@ -512,8 +480,13 @@ export default function BibleReader() {
                   <button 
                     className={styles.explanationButton}
                     onClick={handleExplanationSubmit}
+                    disabled={explanationLoading}
                   >
-                    Obtener Explicación
+                    {explanationLoading ? (
+                      <div className={styles.loadingSpinner}></div>
+                    ) : (
+                      'Obtener Explicación'
+                    )}
                   </button>
                   <button 
                     className={styles.explanationButton}
@@ -524,6 +497,7 @@ export default function BibleReader() {
                       setResponse(null);
                       setPosition({ x: 0, y: 0 });
                     }}
+                    disabled={explanationLoading}
                   >
                     Cancelar
                   </button>

@@ -49,6 +49,7 @@ export default function BiblicalCharacterCard({
     <div 
       className={styles.characterCard}
       style={{ background: colors.gradient }}
+      onClick={onChat}
     >
       <div className={styles.imageContainer}>
         <Image
@@ -72,13 +73,6 @@ export default function BiblicalCharacterCard({
       <div className={styles.content}>
         <h3 className={styles.name}>{name}</h3>
         <p className={styles.description}>{description}</p>
-        <button 
-          onClick={onChat} 
-          className={styles.chatButton}
-          style={{ background: colors.buttonGradient }}
-        >
-          Hablar con {name}
-        </button>
       </div>
     </div>
   );

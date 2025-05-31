@@ -4,6 +4,9 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import { useState, useRef, useEffect } from 'react';
 import { sendCharacterMessage } from '@/services/characterChat';
+import { useUserName } from '@/contexts/UserNameContext';
+import { useRateLimit } from '@/contexts/RateLimitContext';
+import RateLimitAlert from '@/components/RateLimitAlert';
 import styles from './chat.module.css';
 
 const characterData = {
@@ -73,27 +76,35 @@ export default function ChatPage() {
   const params = useParams();
   const character = params.character as keyof typeof characterData;
   const data = characterData[character];
+  const { userName } = useUserName();
+  const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showRateLimitAlert, setShowRateLimitAlert] = useState(false);
-  const [rateLimitInfo, setRateLimitInfo] = useState<{
-    remainingTime: string;
-    resetTime: string;
-  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "end"
+    });
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputMessage.trim() || isLoading) return;
+
+    if (!userName) {
+      setError('Por favor, ingresa tu nombre para continuar');
+      return;
+    }
 
     const userMessage: Message = {
       role: 'user',
@@ -104,10 +115,10 @@ export default function ChatPage() {
     setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
     setIsLoading(true);
+    setError(null);
 
     try {
-      const userId = 'user123'; // Replace with actual user ID
-      const response = await sendCharacterMessage(userId, data.name, inputMessage);
+      const response = await sendCharacterMessage(userName, data.name, inputMessage, userName);
 
       const characterMessage: Message = {
         role: 'character',
@@ -120,29 +131,14 @@ export default function ChatPage() {
       console.error('Error sending message:', error);
       if (error instanceof Error) {
         const errorMessage = error.message;
-        if (errorMessage.includes('429')) {
-          try {
-            // Extract the JSON part from the error message
-            const jsonStr = errorMessage.split('message: ')[1];
-            if (jsonStr) {
-              const errorData = JSON.parse(jsonStr);
-              if (errorData.detail) {
-                setRateLimitInfo({
-                  remainingTime: errorData.detail.remaining_time,
-                  resetTime: errorData.detail.reset_time
-                });
-                setShowRateLimitAlert(true);
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing rate limit info:', e);
-            // Fallback message if parsing fails
-            setRateLimitInfo({
-              remainingTime: '24 horas',
-              resetTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-            });
-            setShowRateLimitAlert(true);
-          }
+        if (errorMessage.includes('Rate limit exceeded')) {
+          setRateLimitInfo({
+            remainingTime: '24 horas',
+            endpoint: 'characterChat'
+          });
+          setShowRateLimitAlert(true);
+        } else {
+          setError(errorMessage);
         }
       }
     } finally {
@@ -152,38 +148,14 @@ export default function ChatPage() {
 
   return (
     <div className={styles.chatContainer} style={{ background: data.theme.gradient }}>
-      {showRateLimitAlert && (
-        <div className={styles.rateLimitAlert}>
-          <div className={styles.rateLimitContent}>
-            <h3>Límite de uso alcanzado</h3>
-            <p>
-              Has alcanzado el límite de 5 mensajes por 24 horas. 
-              {rateLimitInfo && (
-                <>
-                  <br />
-                  Tiempo restante: {rateLimitInfo.remainingTime}
-                </>
-              )}
-            </p>
-            <p>
-              Para continuar usando el servicio sin límites, puedes:
-              <br />
-              1. Esperar 24 horas para que se reinicie tu límite
-              <br />
-              2. Contactar con nosotros para obtener acceso completo
-            </p>
-            <button 
-              className={styles.rateLimitButton}
-              onClick={() => {
-                setShowRateLimitAlert(false);
-                setRateLimitInfo(null);
-              }}
-            >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
+      <RateLimitAlert
+        showRateLimitAlert={showRateLimitAlert}
+        rateLimitInfo={rateLimitInfo}
+        onClose={() => {
+          setShowRateLimitAlert(false);
+          setRateLimitInfo(null);
+        }}
+      />
       
       <div className={styles.header}>
         <button className={styles.backButton} onClick={() => window.history.back()}>
@@ -235,6 +207,13 @@ export default function ChatPage() {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {error && (
+          <div className={styles.errorAlert}>
+            <p>{error}</p>
+            <button onClick={() => setError(null)}>×</button>
+          </div>
+        )}
 
         <form onSubmit={handleSendMessage} className={styles.messageForm}>
           <input

@@ -1,3 +1,5 @@
+import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitContext';
+
 interface ChatMessage {
   role: string;
   content: string;
@@ -28,8 +30,16 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export const sendCharacterMessage = async (
   userId: string,
   characterName: string,
-  message: string
+  message: string,
+  userName: string
 ): Promise<ChatResponse> => {
+  const endpoint = 'characterChat';
+
+  // Check rate limit
+  if (handleRateLimit(endpoint, userName)) {
+    throw new Error('Rate limit exceeded');
+  }
+
   try {
     if (!API_BASE_URL) {
       throw new Error('API_BASE_URL is not configured. Please check your .env.local file.');
@@ -59,6 +69,9 @@ export const sendCharacterMessage = async (
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
+    // Increment rate limit counter after successful request
+    incrementRateLimitCount(endpoint, userName);
+
     const data: ChatResponse = await response.json();
     return data;
   } catch (error) {
@@ -66,6 +79,37 @@ export const sendCharacterMessage = async (
     if (error instanceof Error) {
       throw new Error(`Failed to send message: ${error.message}`);
     }
+    throw error;
+  }
+};
+
+export const getCharacterChat = async (character: string, message: string, userName: string) => {
+  const endpoint = 'characterChat';
+
+  // Check rate limit
+  if (handleRateLimit(endpoint, userName)) {
+    throw new Error('Rate limit exceeded');
+  }
+
+  try {
+    const response = await fetch('/api/character-chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ character, message }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get character chat response');
+    }
+
+    // Increment rate limit counter after successful request
+    incrementRateLimitCount(endpoint, userName);
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting character chat response:', error);
     throw error;
   }
 }; 

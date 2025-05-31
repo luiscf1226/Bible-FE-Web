@@ -87,7 +87,7 @@
 }
 
 .scriptureQuote {
-  margin: 6rem 0 0;
+  margin: 6rem auto 0;
   text-align: center;
   font-style: italic;
   font-size: 1.75rem;
@@ -103,10 +103,14 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   max-width: 900px;
   width: 90%;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  left: 50%;
-  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scriptureQuote p {
+  margin: 0;
+  line-height: 1.6;
 }
 
 .scriptureQuote:hover {
@@ -177,8 +181,6 @@
     margin-top: 3rem;
     padding: 2rem;
     width: 95%;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
   }
 }
 
@@ -214,7 +216,5 @@
     font-size: 1.1rem;
     padding: 1.5rem;
     width: 100%;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
   }
 } 

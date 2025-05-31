@@ -34,7 +34,7 @@ function MainContent() {
                   icon={<img src="/read.png" alt="Bible Icon" />}
                   title="Leer la Biblia"
                   titleColor="var(--color-text-on-dark)"
-                  description="Explora las escrituras, busca versículos y recibe explicaciones profundas."
+                  description="Explora las escrituras, busca versículos, pregunta sobre cualquier versículo y obtén una explicación detallada."
                   buttonText=""
                   buttonColor=""
                   buttonHoverColor=""
@@ -42,7 +42,6 @@ function MainContent() {
                   cardStyle="bible"
                   onClick={() => router.push('/bible')}
                 />
-                
                 <SoulCard
                   headerColor=""
                   icon={<img src="/feelings.png" alt="Feelings Icon" />}

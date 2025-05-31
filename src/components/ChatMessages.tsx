@@ -1,5 +1,6 @@
 'use client';
 
+import { RefObject } from 'react';
 import styles from './ChatMessages.module.css';
 
 export interface Message {
@@ -13,11 +14,12 @@ export interface Message {
 interface ChatMessagesProps {
   messages: Message[];
   isLoading: boolean;
+  messagesEndRef?: RefObject<HTMLDivElement>;
 }
 
-export default function ChatMessages({ messages, isLoading }: ChatMessagesProps) {
+export default function ChatMessages({ messages, isLoading, messagesEndRef }: ChatMessagesProps) {
   return (
-    <div className={styles.messagesContainer}>
+    <div className={styles.messages}>
       {messages.map((message, index) => (
         <div
           key={index}
@@ -25,26 +27,34 @@ export default function ChatMessages({ messages, isLoading }: ChatMessagesProps)
             message.sender === 'user' ? styles.userMessage : styles.botMessage
           }`}
         >
-          {message.sender === 'bot' && message.verse && (
+          <div className={styles.messageContent}>{message.text}</div>
+          {message.verse && (
             <div className={styles.verse}>
-              <strong>Versículo:</strong> {message.verse}
+              <p>{message.verse}</p>
             </div>
           )}
-          <div className={styles.messageContent}>{message.text}</div>
-          <div className={styles.timestamp}>
+          {message.devotional && (
+            <div className={styles.devotional}>
+              <p>{message.devotional}</p>
+            </div>
+          )}
+          <div className={styles.messageTimestamp}>
             {message.timestamp.toLocaleTimeString()}
           </div>
         </div>
       ))}
       {isLoading && (
         <div className={`${styles.message} ${styles.botMessage}`}>
-          <div className={styles.typingIndicator}>
-            <span></span>
-            <span></span>
-            <span></span>
+          <div className={styles.messageContent}>
+            <div className={styles.typingIndicator}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
           </div>
         </div>
       )}
+      <div ref={messagesEndRef} />
     </div>
   );
 } 

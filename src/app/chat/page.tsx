@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { sendFeelingMessage } from '@/services/feelingChat';
+import { useUserName } from '@/contexts/UserNameContext';
+import { useRateLimit } from '@/contexts/RateLimitContext';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
+import RateLimitAlert from '@/components/RateLimitAlert';
 import styles from './chat.module.css';
 
 const feelings = [
@@ -37,10 +40,31 @@ export default function ChatPage() {
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { userName } = useUserName();
+  const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: "smooth",
+      block: "end"
+    });
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToBottom();
+    }
+  }, [messages]);
 
   const handleSendMessage = async (message: string) => {
     if (!selectedFeeling) {
       setError('Por favor, selecciona un sentimiento antes de enviar un mensaje');
+      return;
+    }
+
+    if (!userName) {
+      setError('Por favor, ingresa tu nombre para continuar');
       return;
     }
 
@@ -57,7 +81,7 @@ export default function ChatPage() {
       setMessages(prev => [...prev, userMessage]);
 
       // Get response from API
-      const response = await sendFeelingMessage(message, selectedFeeling);
+      const response = await sendFeelingMessage(message, selectedFeeling, userName);
       
       // Add assistant message
       const assistantMessage: Message = {
@@ -69,12 +93,16 @@ export default function ChatPage() {
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
-      if (error.message === 'Rate limit exceeded') {
-        setError('Has enviado demasiados mensajes. Por favor, espera un momento antes de continuar.');
+      console.error('Error sending message:', error);
+      if (error.message.includes('Rate limit exceeded')) {
+        setRateLimitInfo({
+          remainingTime: '24 horas',
+          endpoint: 'feelingChat'
+        });
+        setShowRateLimitAlert(true);
       } else {
         setError('Error al enviar el mensaje. Por favor, intenta de nuevo.');
       }
-      console.error('Error sending message:', error);
     } finally {
       setIsLoading(false);
     }
@@ -82,6 +110,14 @@ export default function ChatPage() {
 
   return (
     <div className={styles.container}>
+      <RateLimitAlert
+        showRateLimitAlert={showRateLimitAlert}
+        rateLimitInfo={rateLimitInfo}
+        onClose={() => {
+          setShowRateLimitAlert(false);
+          setRateLimitInfo(null);
+        }}
+      />
       <div className={styles.chatContainer}>
         <div className={styles.header}>
           <h1>¿Cómo te sientes hoy?</h1>
@@ -109,6 +145,7 @@ export default function ChatPage() {
         <ChatMessages 
           messages={messages} 
           isLoading={isLoading}
+          messagesEndRef={messagesEndRef}
         />
         
         <ChatInput 
