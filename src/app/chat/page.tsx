@@ -7,6 +7,8 @@ import { useRateLimit } from '@/contexts/RateLimitContext';
 import ChatMessages from '@/components/ChatMessages';
 import ChatInput from '@/components/ChatInput';
 import RateLimitAlert from '@/components/RateLimitAlert';
+import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
+import MuteButton from '@/components/MuteButton';
 import styles from './chat.module.css';
 
 const feelings = [
@@ -23,14 +25,10 @@ const feelings = [
 ];
 
 type Message = {
+  id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
-  verse?: string;
-  devotional?: string;
-};
-
-type FeelingResponse = {
   verse?: string;
   devotional?: string;
 };
@@ -40,9 +38,11 @@ export default function ChatPage() {
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
   const { userName } = useUserName();
   const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { speak, stop, isSpeaking } = useSpeechSynthesis();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
@@ -74,6 +74,7 @@ export default function ChatPage() {
       
       // Add user message
       const userMessage: Message = {
+        id: `user-${Date.now()}`,
         text: message,
         sender: 'user',
         timestamp: new Date()
@@ -83,15 +84,33 @@ export default function ChatPage() {
       // Get response from API
       const response = await sendFeelingMessage(message, selectedFeeling, userName);
       
-      // Add assistant message
-      const assistantMessage: Message = {
-        text: response.devotional || '',
-        sender: 'bot',
-        timestamp: new Date(),
-        verse: response.verse,
-        devotional: response.devotional
-      };
-      setMessages(prev => [...prev, assistantMessage]);
+      if (response.devotional) {
+        const botMessage: Message = {
+          id: `bot-${Date.now()}`,
+          text: response.devotional,
+          sender: 'bot',
+          timestamp: new Date(),
+          verse: response.verse,
+          devotional: response.devotional
+        };
+
+        setMessages(prev => [...prev, botMessage]);
+        
+        // Speak the response with proper pauses if not muted
+        if (!isMuted) {
+          const textToSpeak = response.verse 
+            ? `${response.verse}. ${response.devotional}`
+            : response.devotional;
+          
+          // Stop any ongoing speech before starting new one
+          stop();
+          
+          // Add a small delay before speaking to ensure the message is displayed
+          setTimeout(() => {
+            speak(textToSpeak);
+          }, 100);
+        }
+      }
     } catch (error: any) {
       console.error('Error sending message:', error);
       if (error.message.includes('Rate limit exceeded')) {
@@ -120,7 +139,14 @@ export default function ChatPage() {
       />
       <div className={styles.chatContainer}>
         <div className={styles.header}>
-          <h1>¿Cómo te sientes hoy?</h1>
+          <div className={styles.headerControls}>
+            <h1>¿Cómo te sientes hoy?</h1>
+            <MuteButton 
+              isSpeaking={isSpeaking}
+              onToggle={() => setIsMuted(!isMuted)}
+              className={styles.muteButton}
+            />
+          </div>
           <div className={styles.feelingSelector}>
             {feelings.map((feeling) => (
               <button
@@ -146,6 +172,9 @@ export default function ChatPage() {
           messages={messages} 
           isLoading={isLoading}
           messagesEndRef={messagesEndRef}
+          onSpeak={speak}
+          isSpeaking={isSpeaking}
+          onStopSpeaking={stop}
         />
         
         <ChatInput 

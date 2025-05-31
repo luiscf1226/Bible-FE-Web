@@ -5,6 +5,7 @@ import { getVerseExplanationMultiple } from '@/services/verseExplanation';
 import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
 import RateLimitAlert from '@/components/RateLimitAlert';
+import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 
 interface BibleVerse {
   abbrev: string;
@@ -123,6 +124,7 @@ export default function BibleReader() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [response, setResponse] = useState<string | null>(null);
+  const { speak, stop, isSpeaking } = useSpeechSynthesis();
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -246,6 +248,12 @@ export default function BibleReader() {
 
       const result = await getVerseExplanationMultiple(formattedVerses, userName, verseTexts);
       setResponse(result.explanation);
+
+      // Speak the explanation
+      stop(); // Stop any ongoing speech
+      setTimeout(() => {
+        speak(result.explanation);
+      }, 100);
     } catch (error) {
       console.error('Error getting verse explanation:', error);
       if (error instanceof Error) {

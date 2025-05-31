@@ -7,6 +7,8 @@ import { sendCharacterMessage } from '@/services/characterChat';
 import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
 import RateLimitAlert from '@/components/RateLimitAlert';
+import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
+import MuteButton from '@/components/MuteButton';
 import styles from './chat.module.css';
 
 const characterData = {
@@ -83,6 +85,8 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const { speak, stop, isSpeaking } = useSpeechSynthesis();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
@@ -127,6 +131,14 @@ export default function ChatPage() {
       };
 
       setMessages(prev => [...prev, characterMessage]);
+
+      // Speak the character's response if not muted
+      if (!isMuted) {
+        stop(); // Stop any ongoing speech
+        setTimeout(() => {
+          speak(response.response);
+        }, 100);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       if (error instanceof Error) {
@@ -158,9 +170,16 @@ export default function ChatPage() {
       />
       
       <div className={styles.header}>
-        <button className={styles.backButton} onClick={() => window.history.back()}>
-          ← Volver
-        </button>
+        <div className={styles.headerControls}>
+          <button className={styles.backButton} onClick={() => window.history.back()}>
+            ← Volver
+          </button>
+          <MuteButton 
+            isSpeaking={isSpeaking}
+            onToggle={() => setIsMuted(!isMuted)}
+            className={styles.muteButton}
+          />
+        </div>
         <div className={styles.characterInfo}>
           <div className={styles.imageContainer}>
             <Image
