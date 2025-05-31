@@ -85,11 +85,11 @@ export default function ChatPage() {
       
       // Add assistant message
       const assistantMessage: Message = {
-        text: typeof response === 'string' ? response : response.devotional || '',
+        text: response.devotional || '',
         sender: 'bot',
         timestamp: new Date(),
-        verse: typeof response === 'string' ? undefined : response.verse,
-        devotional: typeof response === 'string' ? undefined : response.devotional
+        verse: response.verse,
+        devotional: response.devotional
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error: any) {
