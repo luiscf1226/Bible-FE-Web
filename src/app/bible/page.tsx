@@ -125,6 +125,7 @@ export default function BibleReader() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [response, setResponse] = useState<string | null>(null);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -326,15 +327,25 @@ export default function BibleReader() {
 
   return (
     <div className={styles.container}>
-      <RateLimitAlert
-        showRateLimitAlert={showRateLimitAlert}
-        rateLimitInfo={rateLimitInfo}
-        onClose={() => {
-          setShowRateLimitAlert(false);
-          setRateLimitInfo(null);
-        }}
-      />
-      <div className={styles.toolbar}>
+      <button 
+        className={styles.toggleToolbar}
+        onClick={() => setIsToolbarVisible(!isToolbarVisible)}
+        aria-label={isToolbarVisible ? "Hide toolbar" : "Show toolbar"}
+      >
+        <svg 
+          className={`${styles.toggleToolbarIcon} ${!isToolbarVisible ? styles.toggleToolbarIconRotated : ''}`}
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <path d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <div className={`${styles.toolbar} ${!isToolbarVisible ? styles.toolbarHidden : ''}`}>
         <div className={styles.controls}>
           <div className={styles.selectGroup}>
             <label htmlFor="bookSelect">Libro:</label>

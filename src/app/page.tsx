@@ -123,7 +123,7 @@ function MainContent() {
                     buttonHoverColor=""
                     isReferenceDesign={true}
                     cardStyle="emotion"
-                    onClick={() => setShowComingSoon(true)}
+                    onClick={() => router.push('/prayer')}
                   />
                 </div>
               )}

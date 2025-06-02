@@ -171,7 +171,7 @@ export default function ChatPage() {
       
       <div className={styles.header}>
         <div className={styles.headerControls}>
-          <button className={styles.backButton} onClick={() => window.history.back()}>
+          <button  className={styles.backButton} onClick={() => window.history.back()}>
             ← Volver
           </button>
           <MuteButton 
