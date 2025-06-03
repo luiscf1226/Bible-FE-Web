@@ -1,8 +1,20 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import styles from './Footer.module.css';
 
 const Footer = () => {
+  const router = useRouter();
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
+  const handleCharactersNavigation = () => {
+    router.push('/?view=characters');
+  };
+
   return (
     <footer className={styles.footer}>
       <div className={styles.footerContainer}>
@@ -17,10 +29,31 @@ const Footer = () => {
           <div className={styles.footerSection}>
             <h4 className={styles.footerSubtitle}>Enlaces Rápidos</h4>
             <ul className={styles.footerLinks}>
-              <li><a href="/" className={styles.footerLink}>Inicio</a></li>
-              <li><a href="/bible" className={styles.footerLink}>Biblia</a></li>
-              <li><a href="/emotions" className={styles.footerLink}>Emociones</a></li>
-              <li><a href="/characters" className={styles.footerLink}>Personajes</a></li>
+              <li>
+                <button onClick={() => handleNavigation('/')} className={styles.footerLink}>
+                  Inicio
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNavigation('/bible')} className={styles.footerLink}>
+                  Biblia
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNavigation('/chat')} className={styles.footerLink}>
+                  Emociones
+                </button>
+              </li>
+              <li>
+                <button onClick={handleCharactersNavigation} className={styles.footerLink}>
+                  Personajes
+                </button>
+              </li>
+              <li>
+                <button onClick={() => handleNavigation('/prayer')} className={styles.footerLink}>
+                  Oración
+                </button>
+              </li>
             </ul>
           </div>
         </div>

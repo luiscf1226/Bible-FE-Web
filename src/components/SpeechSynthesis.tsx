@@ -127,15 +127,15 @@ export const useSpeechSynthesis = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('ElevenLabs API Error:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText
-        });
+        //console.error('ElevenLabs API Error:', {
+          //status: response.status,
+          //statusText: response.statusText,
+          //errorText
+        //});
         
         // If it's a quota error, fall back to browser's speech synthesis
         if (response.status === 401 && errorText.includes('quota_exceeded')) {
-          console.log('Falling back to browser speech synthesis');
+          //console.log('Falling back to browser speech synthesis');
           const utterance = new SpeechSynthesisUtterance(processedText);
           utterance.lang = 'es-ES';
           
@@ -184,12 +184,12 @@ export const useSpeechSynthesis = () => {
 
       await audioElement.play();
     } catch (error: any) {
-      console.error('ElevenLabs error:', error);
+      //console.error('ElevenLabs error:', error);
       
       // If it's not a quota error, try browser's speech synthesis
       if (!error.message?.includes('quota_exceeded')) {
         try {
-          console.log('Falling back to browser speech synthesis');
+          //console.log('Falling back to browser speech synthesis');
           const utterance = new SpeechSynthesisUtterance(text);
           utterance.lang = 'es-ES';
           

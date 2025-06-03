@@ -17,8 +17,9 @@ const characterData = {
     description: 'El Hijo de Dios, Salvador y Maestro que enseñó el amor y la compasión.',
     imageUrl: '/images/characters/jesus.avif',
     theme: {
-      gradient: 'linear-gradient(135deg, #2c5282 0%, #1a365d 100%)',
-      buttonGradient: 'linear-gradient(90deg, #2c5282, #1a365d)'
+      accent: 'rgba(44, 82, 130, 0.8)',
+      accentHover: 'rgba(44, 82, 130, 0.9)',
+      border: 'rgba(44, 82, 130, 0.3)'
     }
   },
   moises: {
@@ -26,8 +27,9 @@ const characterData = {
     description: 'Líder que liberó al pueblo de Israel y recibió los Diez Mandamientos.',
     imageUrl: '/images/characters/moises.avif',
     theme: {
-      gradient: 'linear-gradient(135deg, #2c7a7b 0%, #234e52 100%)',
-      buttonGradient: 'linear-gradient(90deg, #2c7a7b, #234e52)'
+      accent: 'rgba(44, 122, 123, 0.8)',
+      accentHover: 'rgba(44, 122, 123, 0.9)',
+      border: 'rgba(44, 122, 123, 0.3)'
     }
   },
   david: {
@@ -35,8 +37,9 @@ const characterData = {
     description: 'Rey de Israel, poeta y guerrero que escribió los Salmos.',
     imageUrl: '/images/characters/david.jpg',
     theme: {
-      gradient: 'linear-gradient(135deg, #553c9a 0%, #44337a 100%)',
-      buttonGradient: 'linear-gradient(90deg, #553c9a, #44337a)'
+      accent: 'rgba(85, 60, 154, 0.8)',
+      accentHover: 'rgba(85, 60, 154, 0.9)',
+      border: 'rgba(85, 60, 154, 0.3)'
     }
   },
   maria: {
@@ -44,8 +47,9 @@ const characterData = {
     description: 'Madre de Jesús, ejemplo de fe y humildad.',
     imageUrl: '/images/characters/maria.jpg',
     theme: {
-      gradient: 'linear-gradient(135deg, #9b2c2c 0%, #742a2a 100%)',
-      buttonGradient: 'linear-gradient(90deg, #9b2c2c, #742a2a)'
+      accent: 'rgba(155, 44, 44, 0.8)',
+      accentHover: 'rgba(155, 44, 44, 0.9)',
+      border: 'rgba(155, 44, 44, 0.3)'
     }
   },
   pablo: {
@@ -53,8 +57,9 @@ const characterData = {
     description: 'Apóstol que difundió el mensaje de Cristo por el mundo antiguo.',
     imageUrl: '/images/characters/pablo.avif',
     theme: {
-      gradient: 'linear-gradient(135deg, #2d3748 0%, #1a202c 100%)',
-      buttonGradient: 'linear-gradient(90deg, #2d3748, #1a202c)'
+      accent: 'rgba(45, 55, 72, 0.8)',
+      accentHover: 'rgba(45, 55, 72, 0.9)',
+      border: 'rgba(45, 55, 72, 0.3)'
     }
   },
   abraham: {
@@ -62,8 +67,9 @@ const characterData = {
     description: 'Padre de la fe, fundador del pueblo de Dios.',
     imageUrl: '/images/characters/abraham.jpg',
     theme: {
-      gradient: 'linear-gradient(135deg, #744210 0%, #5c3410 100%)',
-      buttonGradient: 'linear-gradient(90deg, #744210, #5c3410)'
+      accent: 'rgba(116, 66, 16, 0.8)',
+      accentHover: 'rgba(116, 66, 16, 0.9)',
+      border: 'rgba(116, 66, 16, 0.3)'
     }
   }
 };
@@ -144,7 +150,7 @@ export default function ChatPage() {
       // Update character info if available
       if (response.character_info) {
         // You can store or use the character info as needed
-        console.log('Character Info:', response.character_info);
+        //console.log('Character Info:', response.character_info);
       }
     } catch (error) {
       console.error('Error sending message:', error);
@@ -166,7 +172,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className={styles.chatContainer} style={{ background: data.theme.gradient }}>
+    <div className={styles.chatContainer}>
       <RateLimitAlert
         showRateLimitAlert={showRateLimitAlert}
         rateLimitInfo={rateLimitInfo}
@@ -176,19 +182,30 @@ export default function ChatPage() {
         }}
       />
       
-      <div className={styles.header}>
+      <div className={styles.header} style={{ borderColor: data.theme.border }}>
         <div className={styles.headerControls}>
-          <button className={styles.backButton} onClick={() => window.history.back()}>
+          <button 
+            className={styles.backButton} 
+            onClick={() => window.history.back()}
+            style={{ 
+              background: data.theme.accent,
+              borderColor: data.theme.border
+            }}
+          >
             ← Volver
           </button>
           <MuteButton 
             isSpeaking={isSpeaking}
             onToggle={() => isSpeaking ? stop() : speak(messages[messages.length - 1]?.content || '')}
             className={styles.speakButton}
+            style={{ 
+              background: data.theme.accent,
+              borderColor: data.theme.border
+            }}
           />
         </div>
-        <div className={styles.characterInfo}>
-          <div className={styles.imageContainer}>
+        <div className={styles.characterInfo} style={{ borderColor: data.theme.border }}>
+          <div className={styles.imageContainer} style={{ borderColor: data.theme.border }}>
             <Image
               src={data.imageUrl}
               alt={data.name}
@@ -213,6 +230,7 @@ export default function ChatPage() {
               className={`${styles.message} ${
                 message.role === 'user' ? styles.userMessage : styles.characterMessage
               }`}
+              style={message.role === 'character' ? { borderColor: data.theme.border } : undefined}
             >
               <div className={styles.messageContent}>{message.content}</div>
               <div className={styles.messageTimestamp}>
@@ -221,7 +239,7 @@ export default function ChatPage() {
             </div>
           ))}
           {isLoading && (
-            <div className={`${styles.message} ${styles.characterMessage}`}>
+            <div className={`${styles.message} ${styles.characterMessage}`} style={{ borderColor: data.theme.border }}>
               <div className={styles.messageContent}>
                 <div className={styles.typingIndicator}>
                   <span></span>
@@ -248,13 +266,15 @@ export default function ChatPage() {
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Escribe tu mensaje..."
             className={styles.messageInput}
-            disabled={isLoading}
           />
           <button 
             type="submit" 
             className={styles.sendButton}
-            style={{ background: data.theme.buttonGradient }}
             disabled={isLoading || !inputMessage.trim()}
+            style={{ 
+              background: data.theme.accent,
+              borderColor: data.theme.border
+            }}
           >
             Enviar
           </button>

@@ -39,7 +39,7 @@ function MainContent() {
         }
         setBibleData(data);
       } catch (error) {
-        console.error('Error loading Bible data:', error);
+        //console.error('Error loading Bible data:', error);
       } finally {
         setLoading(false);
       }

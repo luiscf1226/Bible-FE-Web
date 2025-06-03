@@ -1,18 +1,18 @@
 .characterCard {
   background: linear-gradient(135deg, #2c7a7b 0%, #234e52 100%);
-  border-radius: 1.5rem;
-  padding: 2rem;
+  border-radius: 1.25rem;
+  padding: 1.75rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
-  max-width: 320px;
+  max-width: 300px;
   color: #e2e8f0;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.2), 0 15px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 12px 20px rgba(0,0,0,0.15);
   cursor: pointer;
 }
 
@@ -34,8 +34,8 @@
 }
 
 .characterCard:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 35px 70px rgba(0,0,0,0.25), 0 25px 35px rgba(0,0,0,0.2);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25), 0 20px 30px rgba(0,0,0,0.2);
 }
 
 .characterCard:hover::before {
@@ -44,20 +44,20 @@
 }
 
 .imageContainer {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   overflow: hidden;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   border: 3px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   transition: all 0.4s ease;
 }
 
 .characterCard:hover .imageContainer {
   transform: scale(1.05);
   border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 16px 40px rgba(0,0,0,0.25);
+  box-shadow: 0 14px 35px rgba(0,0,0,0.25);
 }
 
 .characterImage {
@@ -73,18 +73,18 @@
 }
 
 .name {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
 .description {
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: #cbd5e0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   font-weight: 500;
 }
 
@@ -106,46 +106,16 @@
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .characterCard {
     max-width: 280px;
     padding: 1.5rem;
-    border-radius: 1.25rem;
   }
 
   .imageContainer {
     width: 160px;
     height: 160px;
-    margin-bottom: 1.25rem;
-  }
-
-  .name {
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .description {
-    font-size: 0.9rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .chatButton {
-    padding: 0.625rem 1.25rem;
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .characterCard {
-    max-width: 240px;
-    padding: 1.25rem;
-    border-radius: 1rem;
-  }
-
-  .imageContainer {
-    width: 140px;
-    height: 140px;
-    margin-bottom: 1rem;
+    margin-bottom: 1.125rem;
   }
 
   .name {
@@ -154,12 +124,79 @@
   }
 
   .description {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.125rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .characterCard {
+    max-width: 260px;
+    padding: 1.25rem;
+    border-radius: 1.125rem;
+  }
+
+  .imageContainer {
+    width: 150px;
+    height: 150px;
     margin-bottom: 1rem;
   }
 
-  .chatButton {
-    padding: 0.5rem 1rem;
+  .name {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .description {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .characterCard {
+    max-width: 240px;
+    padding: 1.125rem;
+    border-radius: 1rem;
+  }
+
+  .imageContainer {
+    width: 140px;
+    height: 140px;
+    margin-bottom: 0.875rem;
+  }
+
+  .name {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .description {
     font-size: 0.85rem;
+    margin-bottom: 0.875rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .characterCard {
+    max-width: 220px;
+    padding: 1rem;
+    border-radius: 0.875rem;
+  }
+
+  .imageContainer {
+    width: 130px;
+    height: 130px;
+    margin-bottom: 0.75rem;
+  }
+
+  .name {
+    font-size: 1.1rem;
+    margin-bottom: 0.375rem;
+  }
+
+  .description {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
   }
 } 

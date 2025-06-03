@@ -6,9 +6,13 @@ import styles from './ChatInput.module.css';
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
   disabled?: boolean;
+  theme?: {
+    accent: string;
+    border: string;
+  };
 }
 
-export default function ChatInput({ onSendMessage, disabled = false }: ChatInputProps) {
+export default function ChatInput({ onSendMessage, disabled = false, theme }: ChatInputProps) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,6 +37,10 @@ export default function ChatInput({ onSendMessage, disabled = false }: ChatInput
         type="submit" 
         className={styles.sendButton}
         disabled={!message.trim() || disabled}
+        style={theme ? {
+          background: theme.accent,
+          borderColor: theme.border
+        } : undefined}
       >
         Enviar
       </button>

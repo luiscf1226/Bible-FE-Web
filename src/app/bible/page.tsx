@@ -90,7 +90,7 @@ const decodeBookName = (abbrev: string): string => {
     // Normalize the string to handle composed characters
     return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   } catch (error) {
-    console.error('Error decoding book name:', error);
+    //console.error('Error decoding book name:', error);
     return abbrev;
   }
 };
@@ -126,7 +126,6 @@ export default function BibleReader() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [response, setResponse] = useState<string | null>(null);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
-  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -257,7 +256,7 @@ export default function BibleReader() {
         speak(result.explanation);
       }, 100);
     } catch (error) {
-      console.error('Error getting verse explanation:', error);
+      //console.error('Error getting verse explanation:', error);
       if (error instanceof Error) {
         const errorMessage = error.message;
         if (errorMessage.includes('Rate limit exceeded')) {
@@ -328,25 +327,7 @@ export default function BibleReader() {
 
   return (
     <div className={styles.container}>
-      <button 
-        className={styles.toggleToolbar}
-        onClick={() => setIsToolbarVisible(!isToolbarVisible)}
-        aria-label={isToolbarVisible ? "Hide toolbar" : "Show toolbar"}
-      >
-        <svg 
-          className={`${styles.toggleToolbarIcon} ${!isToolbarVisible ? styles.toggleToolbarIconRotated : ''}`}
-          viewBox="0 0 24 24" 
-          fill="none" 
-          stroke="currentColor" 
-          strokeWidth="2" 
-          strokeLinecap="round" 
-          strokeLinejoin="round"
-        >
-          <path d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-      
-      <div className={`${styles.toolbar} ${!isToolbarVisible ? styles.toolbarHidden : ''}`}>
+      <div className={styles.content}>
         <div className={styles.controls}>
           <div className={styles.selectGroup}>
             <label htmlFor="bookSelect">Libro:</label>
@@ -381,72 +362,35 @@ export default function BibleReader() {
               ))}
             </select>
           </div>
-        </div>
 
-        <div className={styles.tools}>
-          <button 
-            className={styles.toolButton}
-            onClick={() => setShowSearch(!showSearch)}
-            title="Buscar"
-            disabled={loading || error !== null}
-          >
-            🔍
-          </button>
-          <button 
-            className={styles.toolButton}
-            onClick={() => handleZoom(2)}
-            title="Aumentar texto"
-            disabled={loading || error !== null}
-          >
-            A+
-          </button>
-          <button 
-            className={styles.toolButton}
-            onClick={() => handleZoom(-2)}
-            title="Reducir texto"
-            disabled={loading || error !== null}
-          >
-            A-
-          </button>
-        </div>
-      </div>
-
-      {showSearch && (
-        <div className={styles.searchOverlay}>
-          <div className={styles.searchContainer}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Buscar en la Biblia..."
-              className={styles.searchInput}
-              autoFocus
-            />
-            {searchResults.length > 0 && (
-              <div className={styles.searchResults}>
-                {searchResults.map((result, index) => (
-                  <div 
-                    key={index} 
-                    className={styles.searchResult}
-                    onClick={() => {
-                      const bookAbbrev = Object.entries(bookNames).find(([_, name]) => name === result.book)?.[0] || 'gn';
-                      setSelectedBook(bookAbbrev);
-                      setSelectedChapter(result.chapter);
-                      setSelectedVerses([result.verse]);
-                      setShowSearch(false);
-                    }}
-                  >
-                    <strong>{decodeBookName(result.book)} {result.chapter}:{result.verse}</strong>
-                    <p>{result.text}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className={styles.tools}>
+            <button 
+              className={styles.toolButton}
+              onClick={() => setShowSearch(!showSearch)}
+              title="Buscar"
+              disabled={loading || error !== null}
+            >
+              🔍
+            </button>
+            <button 
+              className={styles.toolButton}
+              onClick={() => handleZoom(2)}
+              title="Aumentar texto"
+              disabled={loading || error !== null}
+            >
+              A+
+            </button>
+            <button 
+              className={styles.toolButton}
+              onClick={() => handleZoom(-2)}
+              title="Reducir texto"
+              disabled={loading || error !== null}
+            >
+              A-
+            </button>
           </div>
         </div>
-      )}
 
-      <div className={styles.content}>
         <div className={styles.chapterHeader}>
           <h2>{decodeBookName(selectedBook)}</h2>
           <h3>Capítulo {selectedChapter}</h3>
@@ -505,7 +449,7 @@ export default function BibleReader() {
                     {explanationLoading ? (
                       <div className={styles.loadingSpinner}></div>
                     ) : (
-                      'ddExplicación'
+                      'Obtener Explicación'
                     )}
                   </button>
                   <button 
@@ -550,6 +494,52 @@ export default function BibleReader() {
           </div>
         )}
       </div>
+
+      {showSearch && (
+        <div className={styles.searchOverlay}>
+          <div className={styles.searchContainer}>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder="Buscar en la Biblia..."
+              className={styles.searchInput}
+              autoFocus
+            />
+            {searchResults.length > 0 && (
+              <div className={styles.searchResults}>
+                {searchResults.map((result, index) => (
+                  <div 
+                    key={index} 
+                    className={styles.searchResult}
+                    onClick={() => {
+                      const bookAbbrev = Object.entries(bookNames).find(([_, name]) => name === result.book)?.[0] || 'gn';
+                      setSelectedBook(bookAbbrev);
+                      setSelectedChapter(result.chapter);
+                      setSelectedVerses([result.verse]);
+                      setShowSearch(false);
+                    }}
+                  >
+                    <strong>{decodeBookName(result.book)} {result.chapter}:{result.verse}</strong>
+                    <p>{result.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showRateLimitAlert && (
+        <RateLimitAlert
+          showRateLimitAlert={showRateLimitAlert}
+          rateLimitInfo={rateLimitInfo}
+          onClose={() => {
+            setShowRateLimitAlert(false);
+            setRateLimitInfo(null);
+          }}
+        />
+      )}
     </div>
   );
 } 

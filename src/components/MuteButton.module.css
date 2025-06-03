@@ -10,27 +10,63 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 100px;
+  gap: 0.5rem;
+  min-width: 120px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .speakButton:hover {
   background: #2b6cb0;
   transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.speakButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .speakButton.speaking {
   background: #e53e3e;
+  animation: pulse 2s infinite;
 }
 
 .speakButton.speaking:hover {
   background: #c53030;
 }
 
+.speakButton .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.speakButton:hover .icon {
+  transform: scale(1.1);
+}
+
+.speakButton .text {
+  font-weight: 500;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(229, 62, 62, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 62, 62, 0);
+  }
+}
+
 @media (max-width: 768px) {
   .speakButton {
     padding: 0.4rem 0.8rem;
     font-size: 0.85rem;
-    min-width: 90px;
+    min-width: 110px;
   }
 }
 
@@ -38,7 +74,18 @@
   .speakButton {
     padding: 0.3rem 0.6rem;
     font-size: 0.8rem;
-    min-width: 80px;
+    min-width: 100px;
+    border-radius: 0.4rem;
+  }
+  
+  .speakButton .text {
+    display: inline;
+  }
+  
+  .speakButton {
+    min-width: auto;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
   }
 }
 
@@ -47,7 +94,7 @@
   border: none;
   cursor: pointer;
   padding: 8px;
-  border-radius: 50%;
+  border-radius: 0.4rem;
   display: flex;
   align-items: center;
   justify-content: center;

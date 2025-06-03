@@ -83,7 +83,7 @@ export const sendCharacterMessage = async (
 
     return data;
   } catch (error) {
-    console.error('Error sending message to character:', error);
+    //console.error('Error sending message to character:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to send message: ${error.message}`);
     }
@@ -117,7 +117,7 @@ export const getCharacterChat = async (character: string, message: string, userN
 
     return await response.json();
   } catch (error) {
-    console.error('Error getting character chat response:', error);
+    //console.error('Error getting character chat response:', error);
     throw error;
   }
 }; 

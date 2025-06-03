@@ -21,6 +21,10 @@ interface ChatMessagesProps {
   onSpeak: (text: string) => void;
   isSpeaking: boolean;
   onStopSpeaking: () => void;
+  theme?: {
+    accent: string;
+    border: string;
+  };
 }
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -30,6 +34,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   onSpeak,
   isSpeaking,
   onStopSpeaking,
+  theme
 }) => {
   return (
     <div className={styles.messagesContainer}>
@@ -39,6 +44,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           className={`${styles.message} ${
             message.sender === 'user' ? styles.userMessage : styles.botMessage
           }`}
+          style={message.sender === 'bot' && theme ? { borderColor: theme.border } : undefined}
         >
           <div className={styles.messageContent}>
             {message.verse && (
@@ -60,6 +66,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                 isSpeaking={isSpeaking}
                 onToggle={() => isSpeaking ? onStopSpeaking() : onSpeak(message.text)}
                 className={styles.speakButton}
+                style={theme ? {
+                  background: theme.accent,
+                  borderColor: theme.border
+                } : undefined}
               />
             </div>
           )}

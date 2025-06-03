@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styles from './DailyVerse.module.css';
 import { useSpeechSynthesis } from './SpeechSynthesis';
 import MuteButton from './MuteButton';
+import { usePathname } from 'next/navigation';
 
 interface DailyVerseProps {
   bibleData: Array<{
@@ -21,6 +22,40 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
   const [dailyVerse, setDailyVerse] = useState<Verse | null>(null);
   const [loading, setLoading] = useState(true);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
+  const pathname = usePathname();
+
+  // Handle navigation events
+  useEffect(() => {
+    const handleRouteChange = () => {
+      if (isSpeaking) {
+        stop();
+      }
+    };
+
+    window.addEventListener('popstate', handleRouteChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleRouteChange);
+      if (isSpeaking) {
+        stop();
+      }
+    };
+  }, [isSpeaking, stop]);
+
+  // Stop speaking when pathname changes
+  useEffect(() => {
+    if (isSpeaking) {
+      stop();
+    }
+  }, [pathname, isSpeaking, stop]);
+
+  const handleToggleSpeech = useCallback(() => {
+    if (isSpeaking) {
+      stop();
+    } else if (dailyVerse?.text) {
+      speak(dailyVerse.text);
+    }
+  }, [isSpeaking, stop, speak, dailyVerse]);
 
   const getRandomVerse = (): Verse => {
     // Get a random book
@@ -82,7 +117,7 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
           <h2>Versículo del Día</h2>
           <MuteButton 
             isSpeaking={isSpeaking}
-            onToggle={() => isSpeaking ? stop() : speak(dailyVerse?.text || '')}
+            onToggle={handleToggleSpeech}
             className={styles.speakButton}
           />
         </div>

@@ -63,7 +63,7 @@ export const sendFeelingMessage = async (
     const data: FeelingResponse = await response.json();
     return data;
   } catch (error) {
-    console.error('Error sending feeling message:', error);
+    //console.error('Error sending feeling message:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to send feeling message: ${error.message}`);
     }
@@ -97,7 +97,7 @@ export const getFeelingChat = async (feeling: string, message: string, userName:
 
     return await response.json();
   } catch (error) {
-    console.error('Error getting feeling chat response:', error);
+    //console.error('Error getting feeling chat response:', error);
     throw error;
   }
 }; 

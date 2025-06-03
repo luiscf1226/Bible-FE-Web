@@ -18,17 +18,6 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.dailyVerseCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  z-index: 1;
-}
-
 .dailyVerseCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
@@ -52,29 +41,29 @@
 }
 
 .speakButton {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1.25rem;
-  color: #fff;
+  min-width: 120px !important;
+  border-radius: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
   backdrop-filter: blur(4px);
 }
 
 .speakButton:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px);
+}
+
+.speakButton .text {
+  display: inline-block !important;
+  color: #fff !important;
 }
 
 .verseContent {
   position: relative;
   z-index: 2;
+  text-align: center;
 }
 
 .verseText {
@@ -132,7 +121,7 @@
   }
 
   .header h2 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .verseText {
@@ -146,9 +135,8 @@
   }
 
   .speakButton {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    min-width: 110px !important;
+    padding: 0.4rem 0.8rem !important;
   }
 }
 
@@ -169,7 +157,7 @@
   }
 
   .header h2 {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
   }
 
   .verseText {
@@ -183,14 +171,7 @@
   }
 
   .speakButton {
-    width: 32px;
-    height: 32px;
-    font-size: 0.9rem;
-  }
-
-  .loadingSpinner {
-    width: 32px;
-    height: 32px;
-    border-width: 3px;
+    min-width: 100px !important;
+    padding: 0.3rem 0.6rem !important;
   }
 } 

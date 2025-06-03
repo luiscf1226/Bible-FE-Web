@@ -13,16 +13,16 @@ import styles from './chat.module.css';
 import { FaImage } from 'react-icons/fa';
 
 const feelings = [
-  { text: 'Alegría', emoji: '😊' },
-  { text: 'Tristeza', emoji: '😢' },
-  { text: 'Enojo', emoji: '😠' },
-  { text: 'Miedo', emoji: '😨' },
-  { text: 'Ansiedad', emoji: '😰' },
-  { text: 'Esperanza', emoji: '✨' },
-  { text: 'Gratitud', emoji: '🙏' },
-  { text: 'Paz', emoji: '🕊️' },
-  { text: 'Confusión', emoji: '🤔' },
-  { text: 'Duda', emoji: '❓' }
+  { text: 'Alegría', emoji: '😊', theme: { accent: 'rgba(234, 179, 8, 0.8)', border: 'rgba(234, 179, 8, 0.3)' } },
+  { text: 'Tristeza', emoji: '😢', theme: { accent: 'rgba(59, 130, 246, 0.8)', border: 'rgba(59, 130, 246, 0.3)' } },
+  { text: 'Enojo', emoji: '😠', theme: { accent: 'rgba(239, 68, 68, 0.8)', border: 'rgba(239, 68, 68, 0.3)' } },
+  { text: 'Miedo', emoji: '😨', theme: { accent: 'rgba(139, 92, 246, 0.8)', border: 'rgba(139, 92, 246, 0.3)' } },
+  { text: 'Ansiedad', emoji: '😰', theme: { accent: 'rgba(249, 115, 22, 0.8)', border: 'rgba(249, 115, 22, 0.3)' } },
+  { text: 'Esperanza', emoji: '✨', theme: { accent: 'rgba(34, 197, 94, 0.8)', border: 'rgba(34, 197, 94, 0.3)' } },
+  { text: 'Gratitud', emoji: '🙏', theme: { accent: 'rgba(236, 72, 153, 0.8)', border: 'rgba(236, 72, 153, 0.3)' } },
+  { text: 'Paz', emoji: '🕊️', theme: { accent: 'rgba(14, 165, 233, 0.8)', border: 'rgba(14, 165, 233, 0.3)' } },
+  { text: 'Confusión', emoji: '🤔', theme: { accent: 'rgba(168, 85, 247, 0.8)', border: 'rgba(168, 85, 247, 0.3)' } },
+  { text: 'Duda', emoji: '❓', theme: { accent: 'rgba(156, 163, 175, 0.8)', border: 'rgba(156, 163, 175, 0.3)' } }
 ];
 
 type Message = {
@@ -115,7 +115,6 @@ export default function ChatPage() {
         }
       }
     } catch (error: any) {
-      console.error('Error sending message:', error);
       if (error.message.includes('Rate limit exceeded')) {
         setRateLimitInfo({
           remainingTime: '24 horas',
@@ -129,6 +128,8 @@ export default function ChatPage() {
       setIsLoading(false);
     }
   };
+
+  const selectedFeelingData = selectedFeeling ? feelings.find(f => f.text === selectedFeeling) : null;
 
   return (
     <div className={styles.container}>
@@ -149,6 +150,10 @@ export default function ChatPage() {
                 className={`${styles.imageToggle} ${includeSvg ? styles.active : ''}`}
                 onClick={() => setIncludeSvg(!includeSvg)}
                 title={includeSvg ? "Desactivar imágenes" : "Activar imágenes"}
+                style={selectedFeelingData ? {
+                  background: selectedFeelingData.theme.accent,
+                  borderColor: selectedFeelingData.theme.border
+                } : undefined}
               >
                 <FaImage />
                 <span>{includeSvg ? "Imágenes activadas" : "Activar imágenes"}</span>
@@ -157,6 +162,10 @@ export default function ChatPage() {
                 isSpeaking={isSpeaking}
                 onToggle={() => isSpeaking ? stop() : speak(messages[messages.length - 1]?.text || '')}
                 className={styles.speakButton}
+                style={selectedFeelingData ? {
+                  background: selectedFeelingData.theme.accent,
+                  borderColor: selectedFeelingData.theme.border
+                } : undefined}
               />
             </div>
           </div>
@@ -166,6 +175,10 @@ export default function ChatPage() {
                 key={feeling.text}
                 className={`${styles.feelingButton} ${selectedFeeling === feeling.text ? styles.selected : ''}`}
                 onClick={() => setSelectedFeeling(feeling.text)}
+                style={selectedFeeling === feeling.text ? {
+                  background: feeling.theme.accent,
+                  borderColor: feeling.theme.border
+                } : undefined}
               >
                 <span className={styles.emoji}>{feeling.emoji}</span>
                 <span className={styles.feelingText}>{feeling.text}</span>
@@ -188,11 +201,13 @@ export default function ChatPage() {
           onSpeak={speak}
           isSpeaking={isSpeaking}
           onStopSpeaking={stop}
+          theme={selectedFeelingData?.theme}
         />
         
         <ChatInput 
           onSendMessage={handleSendMessage} 
           disabled={isLoading || !selectedFeeling}
+          theme={selectedFeelingData?.theme}
         />
       </div>
     </div>
