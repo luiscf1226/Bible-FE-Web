@@ -13,10 +13,10 @@
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background-color: #343541;
+  background-color: var(--bg-color, #343541);
   background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    linear-gradient(var(--grid-color, rgba(0, 0, 0, 0.1)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color, rgba(0, 0, 0, 0.1)) 1px, transparent 1px);
   background-size: 20px 20px;
 }
 

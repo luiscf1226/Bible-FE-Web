@@ -94,6 +94,21 @@ export default function ChatPage() {
   const [isMuted, setIsMuted] = useState(false);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
 
+  // Set background color based on character theme
+  useEffect(() => {
+    const root = document.documentElement;
+    const accentColor = data.theme.accent;
+    const [r, g, b] = accentColor.match(/\d+/g)?.map(Number) || [52, 53, 65];
+    
+    // Create a darker version of the accent color for the background
+    const bgColor = `rgb(${Math.max(0, r - 40)}, ${Math.max(0, g - 40)}, ${Math.max(0, b - 40)})`;
+    // Create a lighter version for the grid lines
+    const gridColor = `rgba(${r}, ${g}, ${b}, 0.1)`;
+    
+    root.style.setProperty('--bg-color', bgColor);
+    root.style.setProperty('--grid-color', gridColor);
+  }, [data.theme.accent]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
       behavior: "smooth",
