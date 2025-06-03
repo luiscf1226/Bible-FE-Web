@@ -32,37 +32,24 @@ export function RateLimitProvider({ children }: { children: ReactNode }) {
     setRateLimitInfo,
   };
 
-  // Log rate limit state changes
-  useEffect(() => {
-    if (rateLimitInfo) {
-      console.log(`[Rate Limit] Alert shown for endpoint ${rateLimitInfo.endpoint} with remaining time: ${rateLimitInfo.remainingTime}`);
-    }
-  }, [rateLimitInfo]);
-
   const checkEndpointLimit = (endpoint: string) => {
     if (!userName) {
-      console.log('[Rate Limit] No user name available for rate limit check');
       return { isLimited: false };
     }
-    console.log(`[Rate Limit] Checking limit for endpoint ${endpoint}`);
     return checkRateLimit(userName, endpoint);
   };
 
   const incrementEndpointLimit = (endpoint: string) => {
     if (!userName) {
-      console.log('[Rate Limit] No user name available for rate limit increment');
       return;
     }
-    console.log(`[Rate Limit] Incrementing limit for endpoint ${endpoint}`);
     incrementRateLimit(userName, endpoint);
   };
 
   const getEndpointRemainingRequests = (endpoint: string) => {
     if (!userName) {
-      console.log('[Rate Limit] No user name available for remaining requests check');
       return 5;
     }
-    console.log(`[Rate Limit] Getting remaining requests for endpoint ${endpoint}`);
     return getRemainingRequests(userName, endpoint);
   };
 
@@ -93,11 +80,9 @@ export function useRateLimit() {
 
 // Export non-hook version of rate limit functions
 export const handleRateLimit = (endpoint: string, userName: string) => {
-  console.log(`[Rate Limit] Handling rate limit for user ${userName} on endpoint ${endpoint}`);
   const { isLimited, remainingTime } = checkRateLimit(userName, endpoint);
   
   if (isLimited && rateLimitFunctions) {
-    console.log(`[Rate Limit] Setting rate limit alert for endpoint ${endpoint}`);
     rateLimitFunctions.setRateLimitInfo({ remainingTime: remainingTime!, endpoint });
     rateLimitFunctions.setShowRateLimitAlert(true);
     return true;
@@ -107,6 +92,5 @@ export const handleRateLimit = (endpoint: string, userName: string) => {
 };
 
 export const incrementRateLimitCount = (endpoint: string, userName: string) => {
-  console.log(`[Rate Limit] Incrementing rate limit count for user ${userName} on endpoint ${endpoint}`);
   incrementRateLimit(userName, endpoint);
 }; 

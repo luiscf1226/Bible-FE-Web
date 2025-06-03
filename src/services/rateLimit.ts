@@ -26,23 +26,13 @@ export const checkRateLimit = (userName: string, endpoint: string): { isLimited:
     // Reset if time window has passed
     rateLimitData = { timestamp: now, count: 0 };
     localStorage.setItem(storageKey, JSON.stringify(rateLimitData));
-    console.log(`[Rate Limit] Reset limit for user ${userName} on endpoint ${endpoint}`);
   }
-
-  // Log current state
-  console.log(`[Rate Limit] Current state for user ${userName} on endpoint ${endpoint}:`, {
-    count: rateLimitData.count,
-    maxRequests: MAX_REQUESTS,
-    remaining: MAX_REQUESTS - rateLimitData.count,
-    timeLeft: TIME_WINDOW - (now - rateLimitData.timestamp)
-  });
 
   // Check if limit is reached
   if (rateLimitData.count >= MAX_REQUESTS) {
     const timeLeft = TIME_WINDOW - (now - rateLimitData.timestamp);
     const hours = Math.floor(timeLeft / (60 * 60 * 1000));
     const minutes = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-    console.log(`[Rate Limit] Limit reached for user ${userName} on endpoint ${endpoint}. Time left: ${hours}h ${minutes}m`);
     return {
       isLimited: true,
       remainingTime: `${hours}h ${minutes}m`
@@ -69,7 +59,6 @@ export const incrementRateLimit = (userName: string, endpoint: string): void => 
 
   // Save updated data
   localStorage.setItem(storageKey, JSON.stringify(rateLimitData));
-  console.log(`[Rate Limit] Incremented count for user ${userName} on endpoint ${endpoint}. New count: ${rateLimitData.count}`);
 };
 
 export const getRemainingRequests = (userName: string, endpoint: string): number => {
@@ -86,7 +75,5 @@ export const getRemainingRequests = (userName: string, endpoint: string): number
     return MAX_REQUESTS;
   }
 
-  const remaining = Math.max(0, MAX_REQUESTS - rateLimitData.count);
-  console.log(`[Rate Limit] Remaining requests for user ${userName} on endpoint ${endpoint}: ${remaining}`);
-  return remaining;
+  return Math.max(0, MAX_REQUESTS - rateLimitData.count);
 }; 

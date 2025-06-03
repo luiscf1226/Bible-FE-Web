@@ -96,6 +96,7 @@ export const useSpeechSynthesis = () => {
 
     try {
       const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+      //console.log('API Key available:', !!apiKey);
       if (!apiKey) {
         throw new Error('ElevenLabs API key not found');
       }
@@ -103,7 +104,7 @@ export const useSpeechSynthesis = () => {
       const processedText = processTextForNaturalSpeech(text);
 
       const response = await fetch(
-        `https://api.elevenlabs.io/v1/text-to-speech/ErXwobaYiN019PkySvjV/stream`,
+        `https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream`,
         {
           method: 'POST',
           headers: {
@@ -113,19 +114,51 @@ export const useSpeechSynthesis = () => {
           },
           body: JSON.stringify({
             text: processedText,
-            model_id: 'eleven_multilingual_v2',
+            model_id: 'eleven_monolingual_v1',
             voice_settings: {
-              stability: 0.71,
-              similarity_boost: 0.75,
+              stability: 0.5,
+              similarity_boost: 0.5,
               style: 0.0,
-              use_speaker_boost: true
+              use_speaker_boost: false
             }
           })
         }
       );
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('ElevenLabs API Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
+        
+        // If it's a quota error, fall back to browser's speech synthesis
+        if (response.status === 401 && errorText.includes('quota_exceeded')) {
+          console.log('Falling back to browser speech synthesis');
+          const utterance = new SpeechSynthesisUtterance(processedText);
+          utterance.lang = 'es-ES';
+          
+          utterance.onstart = () => {
+            setState(prev => ({ ...prev, isSpeaking: true }));
+            options?.onStart?.();
+          };
+          
+          utterance.onend = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onEnd?.();
+          };
+          
+          utterance.onerror = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onError?.();
+          };
+          
+          window.speechSynthesis.speak(utterance);
+          return;
+        }
+        
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
 
       const audioBlob = await response.blob();
@@ -152,6 +185,35 @@ export const useSpeechSynthesis = () => {
       await audioElement.play();
     } catch (error: any) {
       console.error('ElevenLabs error:', error);
+      
+      // If it's not a quota error, try browser's speech synthesis
+      if (!error.message?.includes('quota_exceeded')) {
+        try {
+          console.log('Falling back to browser speech synthesis');
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'es-ES';
+          
+          utterance.onstart = () => {
+            setState(prev => ({ ...prev, isSpeaking: true }));
+            options?.onStart?.();
+          };
+          
+          utterance.onend = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onEnd?.();
+          };
+          
+          utterance.onerror = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onError?.();
+          };
+          
+          window.speechSynthesis.speak(utterance);
+          return;
+        } catch (fallbackError) {
+          console.error('Browser speech synthesis error:', fallbackError);
+        }
+      }
       
       // Check if it's a quota exceeded error
       if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429')) {

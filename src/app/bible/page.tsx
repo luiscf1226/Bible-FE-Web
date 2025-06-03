@@ -144,7 +144,7 @@ export default function BibleReader() {
         setBibleData(data);
         // Log all unique abbreviations for mapping validation
         const abbrevs = data.map((book: any) => book.abbrev);
-        console.log('Bible abbreviations:', abbrevs);
+        //console.log('Bible abbreviations:', abbrevs);
       } catch (error) {
         console.error('Error loading Bible data:', error);
         setError('Error loading Bible data. Please try again later.');
@@ -505,7 +505,7 @@ export default function BibleReader() {
                     {explanationLoading ? (
                       <div className={styles.loadingSpinner}></div>
                     ) : (
-                      'Obtener Explicación'
+                      'ddExplicación'
                     )}
                   </button>
                   <button 
