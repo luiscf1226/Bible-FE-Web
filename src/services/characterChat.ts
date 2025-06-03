@@ -1,21 +1,23 @@
 import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitContext';
 
 interface ChatMessage {
-  role: string;
+  role: 'user' | 'assistant';
   content: string;
   timestamp: string;
 }
 
 interface CharacterInfo {
-  additionalProp1?: string;
-  additionalProp2?: string;
-  additionalProp3?: string;
+  Época?: string;
+  Ocupación?: string;
+  Rasgos?: string;
+  Legado?: string;
+  [key: string]: string | undefined;
 }
 
 interface ChatResponse {
   character_name: string;
   response: string;
-  conversation_history: ChatMessage[];
+  conversation_history?: ChatMessage[];
   character_info: CharacterInfo;
 }
 
@@ -73,6 +75,12 @@ export const sendCharacterMessage = async (
     incrementRateLimitCount(endpoint, userName);
 
     const data: ChatResponse = await response.json();
+    
+    // Ensure the response has the correct structure
+    if (!data.character_name || !data.response || !Array.isArray(data.conversation_history)) {
+      throw new Error('Invalid response format from the server');
+    }
+
     return data;
   } catch (error) {
     console.error('Error sending message to character:', error);

@@ -124,6 +124,7 @@ export default function ChatPage() {
     try {
       const response = await sendCharacterMessage(userName, data.name, inputMessage, userName);
 
+      // Only use the response and character_info from the API
       const characterMessage: Message = {
         role: 'character',
         content: response.response,
@@ -138,6 +139,12 @@ export default function ChatPage() {
         setTimeout(() => {
           speak(response.response);
         }, 100);
+      }
+
+      // Update character info if available
+      if (response.character_info) {
+        // You can store or use the character info as needed
+        console.log('Character Info:', response.character_info);
       }
     } catch (error) {
       console.error('Error sending message:', error);
