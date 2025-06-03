@@ -10,6 +10,7 @@ import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
 import styles from './chat.module.css';
+import { FaImage } from 'react-icons/fa';
 
 const feelings = [
   { text: 'Alegría', emoji: '😊' },
@@ -31,6 +32,7 @@ type Message = {
   timestamp: Date;
   verse?: string;
   devotional?: string;
+  svg?: string;
 };
 
 export default function ChatPage() {
@@ -38,7 +40,7 @@ export default function ChatPage() {
   const [selectedFeeling, setSelectedFeeling] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [includeSvg, setIncludeSvg] = useState(false);
   const { userName } = useUserName();
   const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -82,7 +84,7 @@ export default function ChatPage() {
       setMessages(prev => [...prev, userMessage]);
 
       // Get response from API
-      const response = await sendFeelingMessage(message, selectedFeeling, userName);
+      const response = await sendFeelingMessage(message, selectedFeeling, userName, includeSvg);
       
       if (response.devotional) {
         const botMessage: Message = {
@@ -91,13 +93,14 @@ export default function ChatPage() {
           sender: 'bot',
           timestamp: new Date(),
           verse: response.verse,
-          devotional: response.devotional
+          devotional: response.devotional,
+          svg: response.svg
         };
 
         setMessages(prev => [...prev, botMessage]);
         
         // Speak the response with proper pauses if not muted
-        if (!isMuted) {
+        if (!isSpeaking) {
           const textToSpeak = response.verse 
             ? `${response.verse}. ${response.devotional}`
             : response.devotional;
@@ -141,11 +144,21 @@ export default function ChatPage() {
         <div className={styles.header}>
           <div className={styles.headerControls}>
             <h1>¿Cómo te sientes hoy?</h1>
-            <MuteButton 
-              isSpeaking={isSpeaking}
-              onToggle={() => setIsMuted(!isMuted)}
-              className={styles.muteButton}
-            />
+            <div className={styles.controls}>
+              <button
+                className={`${styles.imageToggle} ${includeSvg ? styles.active : ''}`}
+                onClick={() => setIncludeSvg(!includeSvg)}
+                title={includeSvg ? "Desactivar imágenes" : "Activar imágenes"}
+              >
+                <FaImage />
+                <span>{includeSvg ? "Imágenes activadas" : "Activar imágenes"}</span>
+              </button>
+              <MuteButton 
+                isSpeaking={isSpeaking}
+                onToggle={() => isSpeaking ? stop() : speak(messages[messages.length - 1]?.text || '')}
+                className={styles.speakButton}
+              />
+            </div>
           </div>
           <div className={styles.feelingSelector}>
             {feelings.map((feeling) => (

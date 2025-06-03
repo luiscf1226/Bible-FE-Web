@@ -171,13 +171,13 @@ export default function ChatPage() {
       
       <div className={styles.header}>
         <div className={styles.headerControls}>
-          <button  className={styles.backButton} onClick={() => window.history.back()}>
+          <button className={styles.backButton} onClick={() => window.history.back()}>
             ← Volver
           </button>
           <MuteButton 
             isSpeaking={isSpeaking}
-            onToggle={() => setIsMuted(!isMuted)}
-            className={styles.muteButton}
+            onToggle={() => isSpeaking ? stop() : speak(messages[messages.length - 1]?.content || '')}
+            className={styles.speakButton}
           />
         </div>
         <div className={styles.characterInfo}>

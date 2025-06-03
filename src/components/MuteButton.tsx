@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styles from './MuteButton.module.css';
 
 interface MuteButtonProps {
@@ -12,24 +11,13 @@ export const MuteButton: React.FC<MuteButtonProps> = ({
   onToggle,
   className = ''
 }) => {
-  const [isMuted, setIsMuted] = useState(false);
-
-  const handleToggle = () => {
-    setIsMuted(!isMuted);
-    onToggle();
-  };
-
   return (
     <button
-      className={`${styles.muteButton} ${className}`}
-      onClick={handleToggle}
-      title={isMuted ? "Activar audio" : "Silenciar audio"}
+      className={`${styles.speakButton} ${className} ${isSpeaking ? styles.speaking : ''}`}
+      onClick={onToggle}
+      title={isSpeaking ? "Detener" : "Escuchar"}
     >
-      {isMuted ? (
-        <span className={styles.icon}>🔇</span>
-      ) : (
-        <span className={styles.icon}>{isSpeaking ? '🔊' : '🔈'}</span>
-      )}
+      {isSpeaking ? 'Detener' : 'Escuchar'}
     </button>
   );
 };

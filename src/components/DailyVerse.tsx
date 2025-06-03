@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './DailyVerse.module.css';
 import { useSpeechSynthesis } from './SpeechSynthesis';
+import MuteButton from './MuteButton';
 
 interface DailyVerseProps {
   bibleData: Array<{
@@ -62,16 +63,6 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
     }
   }, [bibleData]);
 
-  const handleSpeak = () => {
-    if (dailyVerse) {
-      if (isSpeaking) {
-        stop();
-      } else {
-        speak(dailyVerse.text);
-      }
-    }
-  };
-
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -89,13 +80,11 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
       <div className={styles.dailyVerseCard}>
         <div className={styles.header}>
           <h2>Versículo del Día</h2>
-          <button 
+          <MuteButton 
+            isSpeaking={isSpeaking}
+            onToggle={() => isSpeaking ? stop() : speak(dailyVerse?.text || '')}
             className={styles.speakButton}
-            onClick={handleSpeak}
-            title={isSpeaking ? "Detener" : "Escuchar"}
-          >
-            {isSpeaking ? "🔇" : "🔊"}
-          </button>
+          />
         </div>
         <div className={styles.verseContent}>
           <p className={styles.verseText}>{dailyVerse.text}</p>

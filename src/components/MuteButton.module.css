@@ -1,3 +1,47 @@
+.speakButton {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  background: #2c5282;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+.speakButton:hover {
+  background: #2b6cb0;
+  transform: translateY(-1px);
+}
+
+.speakButton.speaking {
+  background: #e53e3e;
+}
+
+.speakButton.speaking:hover {
+  background: #c53030;
+}
+
+@media (max-width: 768px) {
+  .speakButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .speakButton {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+}
+
 .muteButton {
   background: none;
   border: none;

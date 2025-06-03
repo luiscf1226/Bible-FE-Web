@@ -3,11 +3,13 @@ import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitCo
 interface FeelingResponse {
   verse: string;
   devotional: string;
+  svg?: string;
 }
 
 interface FeelingRequest {
   feeling: string;
   text: string;
+  include_svg?: boolean;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -15,7 +17,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 export const sendFeelingMessage = async (
   feeling: string,
   text: string,
-  userName: string
+  userName: string,
+  includeSvg: boolean = false
 ): Promise<FeelingResponse> => {
   const endpoint = 'feelingChat';
 
@@ -39,12 +42,13 @@ export const sendFeelingMessage = async (
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/feeling`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/feeling?include_svg=${includeSvg}`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         feeling,
         text,
+        include_svg: includeSvg,
       } as FeelingRequest),
     });
 
