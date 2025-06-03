@@ -4,30 +4,49 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './prayer.module.css';
 import SpeechSynthesis from '@/components/SpeechSynthesis';
+import { generatePrayer } from '@/services/prayer';
+import { useUserName } from '@/contexts/UserNameContext';
+import { useRateLimit } from '@/contexts/RateLimitContext';
 
 export default function PrayerPage() {
   const [petition, setPetition] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [generatedPrayer, setGeneratedPrayer] = useState<{
-    text: string;
-    verse: string;
-    reference: string;
+    prayer: string;
+    bible_verses: string[];
+    explanation: string;
   } | null>(null);
   const router = useRouter();
+  const { userName } = useUserName();
+  const { checkEndpointLimit } = useRateLimit();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
 
-    // Mock response for now - will be replaced with actual API call
-    setTimeout(() => {
-      setGeneratedPrayer({
-        text: "Querido Padre Celestial, te agradezco por este momento de comunión contigo. Te pido que bendigas a esta persona y le des la paz y fortaleza que necesita. Que tu amor y gracia la guíen en cada paso de su camino. En el nombre de Jesús, amén.",
-        verse: "Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos.",
-        reference: "Mateo 18:20"
-      });
+    if (!userName) {
+      setError('Por favor, establece tu nombre antes de generar una oración');
       setIsLoading(false);
-    }, 1500);
+      return;
+    }
+
+    try {
+      const { isLimited, remainingTime } = checkEndpointLimit('prayer');
+      if (isLimited) {
+        setError(`Límite de solicitudes alcanzado. Por favor, intenta de nuevo en ${remainingTime}`);
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await generatePrayer(petition, userName);
+      setGeneratedPrayer(response);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al generar la oración');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSpeak = (text: string) => {
@@ -42,7 +61,6 @@ export default function PrayerPage() {
     <div className={styles.container}>
       <div className={styles.header}>
         <button 
-        
           className={styles.backButton}
           onClick={() => router.push('/')}
         >
@@ -54,7 +72,7 @@ export default function PrayerPage() {
           </div>
           <h1>Tiempo de Oración</h1>
           <p className={styles.subtitle}>
-            Comparte tu petición y recibe una oración personalizada junto con un versículo bíblico que te inspire.
+            Comparte tu petición y recibe una oración personalizada junto con versículos bíblicos que te inspiren.
           </p>
         </div>
       </div>
@@ -81,6 +99,7 @@ export default function PrayerPage() {
               required
             />
           </div>
+          {error && <p className={styles.error}>{error}</p>}
           <button 
             type="submit" 
             className={styles.submitButton}
@@ -109,18 +128,25 @@ export default function PrayerPage() {
               </div>
               <button 
                 className={styles.speakButton}
-                onClick={() => handleSpeak(generatedPrayer.text)}
+                onClick={() => handleSpeak(generatedPrayer.prayer)}
                 title="Escuchar oración"
               >
                 🔊
               </button>
             </div>
             <div className={styles.prayerContent}>
-              <p className={styles.prayerText}>{generatedPrayer.text}</p>
+              <p className={styles.prayerText}>{generatedPrayer.prayer}</p>
               <div className={styles.verseContainer}>
                 <span className={styles.verseIcon}>📖</span>
-                <p className={styles.verseText}>{generatedPrayer.verse}</p>
-                <p className={styles.verseReference}>- {generatedPrayer.reference}</p>
+                <div className={styles.versesList}>
+                  {generatedPrayer.bible_verses.map((verse, index) => (
+                    <p key={index} className={styles.verseText}>{verse}</p>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.explanationContainer}>
+                <span className={styles.explanationIcon}>💭</span>
+                <p className={styles.explanationText}>{generatedPrayer.explanation}</p>
               </div>
             </div>
             <div className={styles.prayerFooter}>

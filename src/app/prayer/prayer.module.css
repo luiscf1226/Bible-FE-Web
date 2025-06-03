@@ -244,6 +244,16 @@
   animation: spin 1s linear infinite;
 }
 
+.error {
+  color: #ff6b6b;
+  margin-bottom: 1rem;
+  text-align: center;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
 .prayerCard {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
@@ -268,15 +278,15 @@
   gap: 0.5rem;
 }
 
-.prayerIcon {
-  font-size: 1.5rem;
-}
-
-.prayerHeader h2 {
+.prayerTitle h2 {
   font-size: 1.5rem;
   font-weight: 600;
   margin: 0;
   color: rgba(255, 255, 255, 0.9);
+}
+
+.prayerIcon {
+  font-size: 1.5rem;
 }
 
 .speakButton {
@@ -332,6 +342,10 @@
   color: #1a365d;
 }
 
+.versesList {
+  margin-top: 1rem;
+}
+
 .verseText {
   font-style: italic;
   font-size: 1.1rem;
@@ -341,11 +355,30 @@
   color: rgba(255, 255, 255, 0.9);
 }
 
-.verseReference {
-  text-align: right;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  color: rgba(255, 255, 255, 0.8);
+.explanationContainer {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.explanationIcon {
+  position: absolute;
+  top: -15px;
+  left: 20px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  padding: 0.5rem;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  color: #1a365d;
+}
+
+.explanationText {
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
 }
 
 .prayerFooter {
