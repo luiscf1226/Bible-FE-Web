@@ -10,215 +10,167 @@ interface SpeechSynthesisProps {
 
 interface SpeechSynthesisState {
   isSpeaking: boolean;
-  availableVoices: SpeechSynthesisVoice[];
-  selectedVoice: SpeechSynthesisVoice | null;
+  isElevenLabsAvailable: boolean;
 }
-
-const SPANISH_LANGUAGE_CODES = ['es-ES', 'es-MX', 'es-AR', 'es-CL', 'es-CO', 'es-PE', 'es-VE', 'es'];
-
-// Voice quality scores for better voice selection
-const VOICE_QUALITY_SCORES = {
-  'Google': 100,
-  'Microsoft': 90,
-  'Premium': 85,
-  'Enhanced': 80,
-  'female': 75,
-  'mujer': 75,
-  'default': 50
-};
-
-const getVoiceQualityScore = (voice: SpeechSynthesisVoice): number => {
-  const name = voice.name.toLowerCase();
-  for (const [key, score] of Object.entries(VOICE_QUALITY_SCORES)) {
-    if (name.includes(key.toLowerCase())) {
-      return score;
-    }
-  }
-  return VOICE_QUALITY_SCORES.default;
-};
-
-const getBestSpanishVoice = (voices: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null => {
-  // First, get all Spanish voices
-  const spanishVoices = voices.filter(voice => 
-    SPANISH_LANGUAGE_CODES.some(code => voice.lang.includes(code))
-  );
-
-  if (spanishVoices.length === 0) {
-    return null;
-  }
-
-  // Sort voices by quality score
-  const sortedVoices = spanishVoices.sort((a, b) => {
-    const scoreA = getVoiceQualityScore(a);
-    const scoreB = getVoiceQualityScore(b);
-    return scoreB - scoreA;
-  });
-
-  return sortedVoices[0];
-};
 
 const processTextForNaturalSpeech = (text: string): string => {
   return text
-    // Add pauses for punctuation
     .replace(/([.,;:!?])/g, '$1 ')
-    // Add longer pauses for sentence endings
     .replace(/([.!?])\s+/g, '$1\n')
-    // Add emphasis for exclamations and questions
     .replace(/([!?])/g, ' $1 ')
-    // Remove multiple spaces
+    .replace(/,/g, ', ')
+    .replace(/;/g, '; ')
+    .replace(/:/g, ': ')
+    .replace(/\b(Dios|Señor|Jesús|Cristo)\b/gi, '<emphasis>$1</emphasis>')
     .replace(/\s+/g, ' ')
-    // Remove spaces before punctuation
     .replace(/\s+([.,;:!?])/g, '$1')
     .trim();
+};
+
+const showElevenLabsLimitAlert = () => {
+  const alertDiv = document.createElement('div');
+  alertDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 1000;
+    font-family: system-ui, -apple-system, sans-serif;
+    animation: slideIn 0.5s ease-out;
+  `;
+  
+  alertDiv.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span style="font-size: 20px;">🔊</span>
+      <div>
+        <strong>¡Ups! 😊</strong>
+        <p style="margin: 5px 0 0 0;">Por el momento no tenemos audio disponible. ¡Volveremos pronto!</p>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(alertDiv);
+
+  // Add animation styles
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Remove alert after 5 seconds
+  setTimeout(() => {
+    alertDiv.style.animation = 'slideOut 0.5s ease-in';
+    style.textContent += `
+      @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+    `;
+    setTimeout(() => {
+      document.body.removeChild(alertDiv);
+      document.head.removeChild(style);
+    }, 500);
+  }, 5000);
 };
 
 export const useSpeechSynthesis = () => {
   const [state, setState] = useState<SpeechSynthesisState>({
     isSpeaking: false,
-    availableVoices: [],
-    selectedVoice: null,
+    isElevenLabsAvailable: true,
   });
 
-  useEffect(() => {
-    const loadVoices = () => {
-      const voices = speechSynthesis.getVoices();
-      const spanishVoices = voices.filter(voice => 
-        SPANISH_LANGUAGE_CODES.some(code => voice.lang.includes(code))
-      );
-      
-      const bestVoice = getBestSpanishVoice(voices);
-      
-      setState(prev => ({
-        ...prev,
-        availableVoices: spanishVoices,
-        selectedVoice: bestVoice,
-      }));
-    };
-
-    // Load voices immediately if available
-    loadVoices();
-
-    // Set up the event listener for when voices are loaded
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
-    }
-
-    // For Brave browser, we need to ensure voices are loaded
-    const isBrave = /Brave/.test(navigator.userAgent);
-    if (isBrave) {
-      // Force voice loading in Brave
-      const checkVoices = setInterval(() => {
-        const voices = speechSynthesis.getVoices();
-        if (voices.length > 0) {
-          loadVoices();
-          clearInterval(checkVoices);
-        }
-      }, 100);
-
-      // Clear interval after 5 seconds to prevent infinite checking
-      setTimeout(() => clearInterval(checkVoices), 5000);
-    }
-
-    return () => {
-      speechSynthesis.cancel();
-    };
-  }, []);
-
-  const speak = (text: string, options?: {
+  const speakText = async (text: string, options?: {
     onStart?: () => void;
     onEnd?: () => void;
     onError?: () => void;
   }) => {
     if (!text) return;
 
-    // Stop any ongoing speech
-    speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Force Spanish language settings
-    utterance.lang = 'es-ES';
-    
-    // Optimize voice settings for natural Spanish speech
-    utterance.pitch = 1.0;  // Neutral pitch
-    utterance.rate = 0.9;   // Slightly slower for clarity
-    utterance.volume = 1.0; // Full volume
-    
-    if (state.selectedVoice) {
-      utterance.voice = state.selectedVoice;
-    }
-    
-    // Process text for more natural speech
-    utterance.text = processTextForNaturalSpeech(text);
-    
-    // Add event handlers
-    utterance.onstart = () => {
-      setState(prev => ({ ...prev, isSpeaking: true }));
-      options?.onStart?.();
-    };
-    
-    utterance.onend = () => {
-      setState(prev => ({ ...prev, isSpeaking: false }));
-      options?.onEnd?.();
-    };
-    
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      setState(prev => ({ ...prev, isSpeaking: false }));
-      options?.onError?.();
-    };
-    
-    // Browser-specific optimizations
-    const isBrave = /Brave/.test(navigator.userAgent);
-    const isChrome = /Chrome/.test(navigator.userAgent) && !isBrave;
-    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    
-    if (isBrave) {
-      // Brave-specific optimizations
-      utterance.rate = 0.95; // Slightly faster for Brave
-      utterance.pitch = 1.0; // Neutral pitch for Brave
-    } else if (isChrome) {
-      // Chrome-specific optimizations
-      utterance.rate = 0.95; // Slightly faster for Chrome
-    } else if (isSafari) {
-      // Safari-specific optimizations
-      utterance.pitch = 1.05; // Slightly higher pitch for Safari
-      utterance.rate = 0.85; // Slower rate for Safari
-    }
-    
-    // Speak with a slight delay to ensure proper initialization
-    setTimeout(() => {
-      try {
-        // For Brave, ensure we have a Spanish voice
-        if (isBrave && !state.selectedVoice) {
-          const voices = speechSynthesis.getVoices();
-          const spanishVoice = voices.find(voice => 
-            SPANISH_LANGUAGE_CODES.some(code => voice.lang.includes(code))
-          );
-          if (spanishVoice) {
-            utterance.voice = spanishVoice;
-          }
-        }
-        
-        speechSynthesis.speak(utterance);
-      } catch (error) {
-        console.error('Speech synthesis failed:', error);
-        options?.onError?.();
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+      if (!apiKey) {
+        throw new Error('ElevenLabs API key not found');
       }
-    }, 50);
+
+      const processedText = processTextForNaturalSpeech(text);
+
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/ErXwobaYiN019PkySvjV/stream`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey
+          },
+          body: JSON.stringify({
+            text: processedText,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.71,
+              similarity_boost: 0.75,
+              style: 0.0,
+              use_speaker_boost: true
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audioElement = new Audio(audioUrl);
+
+      audioElement.onplay = () => {
+        setState(prev => ({ ...prev, isSpeaking: true }));
+        options?.onStart?.();
+      };
+
+      audioElement.onended = () => {
+        setState(prev => ({ ...prev, isSpeaking: false }));
+        options?.onEnd?.();
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      audioElement.onerror = () => {
+        setState(prev => ({ ...prev, isSpeaking: false }));
+        options?.onError?.();
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      await audioElement.play();
+    } catch (error: any) {
+      console.error('ElevenLabs error:', error);
+      
+      // Check if it's a quota exceeded error
+      if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429')) {
+        setState(prev => ({ ...prev, isElevenLabsAvailable: false }));
+        showElevenLabsLimitAlert();
+      }
+      
+      options?.onError?.();
+    }
   };
 
   const stop = () => {
-    speechSynthesis.cancel();
     setState(prev => ({ ...prev, isSpeaking: false }));
   };
 
   return {
-    speak,
+    speak: speakText,
     stop,
     isSpeaking: state.isSpeaking,
-    availableVoices: state.availableVoices,
-    selectedVoice: state.selectedVoice,
   };
 };
 
