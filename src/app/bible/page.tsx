@@ -6,6 +6,7 @@ import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
 import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
+import MuteButton from '@/components/MuteButton';
 
 interface BibleVerse {
   abbrev: string;
@@ -526,6 +527,11 @@ export default function BibleReader() {
               <div className={styles.responseContainer}>
                 <div className={styles.responseText}>{response}</div>
                 <div className={styles.explanationActions}>
+                  <MuteButton 
+                    isSpeaking={isSpeaking}
+                    onToggle={() => isSpeaking ? stop() : speak(response)}
+                    className={styles.speakButton}
+                  />
                   <button 
                     className={styles.explanationButton}
                     onClick={() => {

@@ -544,44 +544,22 @@
 
 .explanationBox {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 500px;
-  background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
+  background: #2d3748;
+  border-radius: 1rem;
   padding: 1.5rem;
-  border: 1px solid #e2e8f0;
-  animation: slideIn 0.3s ease;
-  cursor: move;
-  user-select: none;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  min-width: 300px;
+  max-width: 500px;
+  color: white;
 }
 
 .selectedVersesInfo {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.selectedVersesInfo h4 {
-  color: #1a1a1a;
-  font-size: 1.2rem;
   margin-bottom: 1rem;
-  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #4a5568;
+  color: #a0aec0;
+  font-size: 0.9rem;
 }
 
 .selectedVersesText {
@@ -649,103 +627,85 @@
 
 .explanationActions {
   display: flex;
-  gap: 0.75rem;
-  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  align-items: center;
 }
 
 .explanationButton {
-  padding: 0.625rem 1.25rem;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-weight: 500;
+  border-radius: 0.5rem;
+  background: #4a5568;
+  color: white;
   cursor: pointer;
   transition: all 0.2s ease;
-  min-width: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 0.9rem;
+}
+
+.explanationButton:hover {
+  background: #2c5282;
+  transform: translateY(-1px);
 }
 
 .explanationButton:disabled {
-  opacity: 0.7;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-.explanationButton .loadingSpinner {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-top: 2px solid transparent;
+.responseContainer {
+  margin-top: 1rem;
+}
+
+.responseText {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.speakButton {
+  min-width: 100px;
+}
+
+.loadingSpinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #a0aec0;
+  border-top-color: white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.explanationButton:first-child {
-  background: linear-gradient(145deg, #4299e1, #3182ce);
-  color: white;
+@media (max-width: 768px) {
+  .explanationBox {
+    min-width: 280px;
+    padding: 1.25rem;
+  }
+
+  .speakButton {
+    min-width: 90px;
+  }
 }
 
-.explanationButton:first-child:hover {
-  background: linear-gradient(145deg, #3182ce, #2b6cb0);
-  transform: translateY(-1px);
-}
+@media (max-width: 480px) {
+  .explanationBox {
+    min-width: 260px;
+    padding: 1rem;
+  }
 
-.explanationButton:last-child {
-  background: linear-gradient(145deg, #f7fafc, #edf2f7);
-  color: #4a5568;
-  border: 1px solid #e2e8f0;
-}
+  .speakButton {
+    min-width: 80px;
+  }
 
-.explanationButton:last-child:hover {
-  background: linear-gradient(145deg, #edf2f7, #e2e8f0);
-  transform: translateY(-1px);
-}
-
-.selectedVerse {
-  background-color: #e8f0fe;
-  border: 1px solid #4a90e2;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.selectedVerse:hover {
-  background-color: #e8f0fe;
-  transform: translateX(4px);
-}
-
-.selectedVerse::after {
-  content: '✓';
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #4a90e2;
-  font-weight: bold;
-}
-
-.responseContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.responseText {
-  background-color: #f8fafc;
-  padding: 1.25rem;
-  border-radius: 12px;
-  border-left: 4px solid #4299e1;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: #2d3748;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  font-family: 'Merriweather', serif;
+  .explanationButton {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+  }
 }
 
 .rateLimitAlert {
