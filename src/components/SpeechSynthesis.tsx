@@ -1,4 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
+import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitContext';
+import { useUserName } from '@/contexts/UserNameContext';
 
 interface SpeechSynthesisProps {
   text: string;
@@ -27,13 +29,13 @@ interface SpeechQueueItem {
 
 const processTextForNaturalSpeech = (text: string): string => {
   return text
-    .replace(/<emphasis>(.*?)<\/emphasis>/g, '$1') // Remove emphasis tags
     .replace(/([.,;:!?])/g, '$1 ')
     .replace(/([.!?])\s+/g, '$1\n')
     .replace(/([!?])/g, ' $1 ')
     .replace(/,/g, ', ')
     .replace(/;/g, '; ')
     .replace(/:/g, ': ')
+    .replace(/\b(Dios|Señor|Jesús|Cristo)\b/gi, '<emphasis>$1</emphasis>')
     .replace(/\s+/g, ' ')
     .replace(/\s+([.,;:!?])/g, '$1')
     .trim();
@@ -59,15 +61,14 @@ const showElevenLabsLimitAlert = () => {
     <div style="display: flex; align-items: center; gap: 10px;">
       <span style="font-size: 20px;">🔊</span>
       <div>
-        <strong>¡Ups! 😊</strong>
-        <p style="margin: 5px 0 0 0;">Por el momento no tenemos audio disponible. ¡Volveremos pronto!</p>
+        <strong>Audio Limit Reached</strong>
+        <p style="margin: 5px 0 0 0;">You've reached your daily limit of 10 audio requests. Please try again tomorrow.</p>
       </div>
     </div>
   `;
 
   document.body.appendChild(alertDiv);
 
-  // Add animation styles
   const style = document.createElement('style');
   style.textContent = `
     @keyframes slideIn {
@@ -77,7 +78,6 @@ const showElevenLabsLimitAlert = () => {
   `;
   document.head.appendChild(style);
 
-  // Remove alert after 5 seconds
   setTimeout(() => {
     alertDiv.style.animation = 'slideOut 0.5s ease-in';
     style.textContent += `
@@ -100,6 +100,7 @@ export const useSpeechSynthesis = () => {
     isInitialized: false,
     currentVoiceIndex: 0
   });
+  const { userName } = useUserName();
 
   // Create a ref to store the speech queue
   const speechQueue = useRef<SpeechQueueItem[]>([]);
@@ -297,119 +298,139 @@ export const useSpeechSynthesis = () => {
     }
   };
 
-  const speakTextWithElevenLabs = async (text: string, options?: {
+  const speakText = async (text: string, options?: {
     onStart?: () => void;
     onEnd?: () => void;
     onError?: () => void;
   }) => {
     if (!text) return;
 
-    // Stop any ongoing speech before starting new one
-    stop();
-
     try {
       const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
-      
-      // If no API key is available, use browser synthesis directly
       if (!apiKey) {
-        speakWithBrowser(text, options);
-        return;
+        throw new Error('ElevenLabs API key not found');
+      }
+
+      // Check rate limit for ElevenLabs audio
+      if (userName && handleRateLimit('elevenlabs_audio', userName)) {
+        showElevenLabsLimitAlert();
+        throw new Error('Rate limit exceeded');
       }
 
       const processedText = processTextForNaturalSpeech(text);
 
-      try {
-        const response = await fetch(
-          `https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream`,
-          {
-            method: 'POST',
-            headers: {
-              'Accept': 'audio/mpeg',
-              'Content-Type': 'application/json',
-              'xi-api-key': apiKey
-            },
-            body: JSON.stringify({
-              text: processedText,
-              model_id: 'eleven_monolingual_v1',
-              voice_settings: {
-                stability: 0.5,
-                similarity_boost: 0.5,
-                style: 0.0,
-                use_speaker_boost: false
-              }
-            })
-          }
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          
-          // Handle various error cases
-          if (response.status === 401 || response.status === 429 || 
-              errorText.includes('quota_exceeded') || 
-              errorText.includes('unauthorized') ||
-              errorText.includes('invalid_api_key')) {
-            setState(prev => ({ ...prev, isElevenLabsAvailable: false }));
-            // Try browser synthesis before showing alert
-            if (!speakWithBrowser(processedText, options)) {
-              showElevenLabsLimitAlert();
+      const response = await fetch(
+        `https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM/stream`,
+        {
+          method: 'POST',
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey
+          },
+          body: JSON.stringify({
+            text: processedText,
+            model_id: 'eleven_monolingual_v1',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.5,
+              style: 0.0,
+              use_speaker_boost: false
             }
-            return;
-          }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        
+        if (response.status === 401 && errorText.includes('quota_exceeded')) {
+          const utterance = new SpeechSynthesisUtterance(processedText);
+          utterance.lang = 'es-ES';
           
-          throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+          utterance.onstart = () => {
+            setState(prev => ({ ...prev, isSpeaking: true }));
+            options?.onStart?.();
+          };
+          
+          utterance.onend = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onEnd?.();
+          };
+          
+          utterance.onerror = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onError?.();
+          };
+          
+          window.speechSynthesis.speak(utterance);
+          return;
         }
-
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
-        const audioElement = new Audio(audioUrl);
-
-        audioElement.onplay = () => {
-          setState(prev => ({ ...prev, isSpeaking: true }));
-          options?.onStart?.();
-        };
-
-        audioElement.onended = () => {
-          setState(prev => ({ ...prev, isSpeaking: false }));
-          options?.onEnd?.();
-          URL.revokeObjectURL(audioUrl);
-        };
-
-        audioElement.onerror = () => {
-          setState(prev => ({ ...prev, isSpeaking: false }));
-          options?.onError?.();
-          URL.revokeObjectURL(audioUrl);
-          // Try browser synthesis before showing alert
-          if (!speakWithBrowser(processedText, options)) {
-            showElevenLabsLimitAlert();
-          }
-        };
-
-        await audioElement.play();
-      } catch (fetchError) {
-        // Handle fetch errors (network issues, etc.)
-        console.error('ElevenLabs fetch error:', fetchError);
-        // Try browser synthesis before showing alert
-        if (!speakWithBrowser(processedText, options)) {
-          showElevenLabsLimitAlert();
-        }
+        
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      // Increment rate limit counter after successful request
+      if (userName) {
+        incrementRateLimitCount('elevenlabs_audio', userName);
+      }
+
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audioElement = new Audio(audioUrl);
+
+      audioElement.onplay = () => {
+        setState(prev => ({ ...prev, isSpeaking: true }));
+        options?.onStart?.();
+      };
+
+      audioElement.onended = () => {
+        setState(prev => ({ ...prev, isSpeaking: false }));
+        options?.onEnd?.();
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      audioElement.onerror = () => {
+        setState(prev => ({ ...prev, isSpeaking: false }));
+        options?.onError?.();
+        URL.revokeObjectURL(audioUrl);
+      };
+
+      await audioElement.play();
     } catch (error: any) {
-      console.error('Speech synthesis error:', error);
-      
-      // Handle any other errors
-      if (error.message?.includes('quota') || 
-          error.message?.includes('limit') || 
-          error.message?.includes('429') ||
-          error.message?.includes('unauthorized') ||
-          error.message?.includes('invalid_api_key')) {
-        setState(prev => ({ ...prev, isElevenLabsAvailable: false }));
+      if (!error.message?.includes('quota_exceeded')) {
+        try {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'es-ES';
+          
+          utterance.onstart = () => {
+            setState(prev => ({ ...prev, isSpeaking: true }));
+            options?.onStart?.();
+          };
+          
+          utterance.onend = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onEnd?.();
+          };
+          
+          utterance.onerror = () => {
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onError?.();
+          };
+          
+          window.speechSynthesis.speak(utterance);
+          return;
+        } catch (fallbackError) {
+          // Silent fallback error
+        }
       }
       
-      // Try browser synthesis before showing alert
-      if (!speakWithBrowser(text, options)) {
+      if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429')) {
+        setState(prev => ({ ...prev, isElevenLabsAvailable: false }));
         showElevenLabsLimitAlert();
       }
+      
+      options?.onError?.();
     }
   };
 
@@ -427,7 +448,7 @@ export const useSpeechSynthesis = () => {
   };
 
   return {
-    speak: speakTextWithElevenLabs,
+    speak: speakText,
     stop,
     isSpeaking: state.isSpeaking,
   };
