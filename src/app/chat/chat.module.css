@@ -1,134 +1,268 @@
+/* Modern CSS with enhanced visual appeal */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 .container {
+  box-sizing: border-box;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #343541;
-  background-image: 
-    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #16213e 75%, #1a1a2e 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  position: relative;
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: white;
+}
+
+/* Animated background gradient */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Subtle grid overlay with glow effect */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 25px 25px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Floating orbs for ambient lighting */
+.container::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  top: 20%;
+  right: -100px;
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-30px) rotate(120deg); }
+  66% { transform: translateY(20px) rotate(240deg); }
 }
 
 .chatContainer {
   flex: 1;
   display: flex;
   flex-direction: column;
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  padding: 1rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .header {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 1rem;
-  margin-bottom: 1rem;
+  gap: 2.5rem;
+  padding: 3rem 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px) saturate(1.5);
+  border-radius: 1.5rem;
+  margin-bottom: 2rem;
   margin-top: 2rem;
-  backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Subtle shimmer effect on header */
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 .header h1 {
   color: white;
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
   margin: 0;
   text-align: center;
-  font-weight: 600;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 50%, #c7d2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
 }
 
 .headerControls {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 1rem;
   width: 100%;
+  gap: 1.5rem;
 }
 
 .headerControls h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
   color: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .muteButton {
   margin-left: 1rem;
 }
 
-/* Feeling selector styles */
+/* Enhanced feeling selector with modern grid */
 .feelingSelector {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
   padding: 0 1rem;
 }
 
 .feelingButton {
-  padding: 0.5rem 1rem;
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.08);
   color: #fff;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  gap: 0.75rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Micro-interaction hover effects */
+.feelingButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.feelingButton:hover::before {
+  left: 100%;
 }
 
 .feelingButton:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .feelingButton:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(1.01);
 }
 
 .feelingButton.selected {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 8px 30px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
 }
 
 .emoji {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  animation: subtle-bounce 2s ease-in-out infinite;
+}
+
+@keyframes subtle-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
 }
 
 .feelingText {
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Error alert styles */
+/* Modern error alert with glassmorphism */
 .errorAlert {
   position: fixed;
-  top: 1rem;
+  top: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(15, 23, 42, 0.9);
   color: white;
-  padding: 1rem 2rem;
-  border-radius: 0.5rem;
+  padding: 1.25rem 2.5rem;
+  border-radius: 1rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
   z-index: 1000;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: slideDown 0.3s ease-out;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px) saturate(1.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .errorAlert p {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 .errorAlert button {
@@ -137,60 +271,221 @@
   color: white;
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0;
+  padding: 0.25rem;
   line-height: 1;
   opacity: 0.7;
-  transition: opacity 0.2s;
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
 }
 
 .errorAlert button:hover {
   opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.1);
 }
 
 @keyframes slideDown {
   from {
-    transform: translate(-50%, -100%);
+    transform: translate(-50%, -150%);
     opacity: 0;
+    scale: 0.9;
   }
   to {
     transform: translate(-50%, 0);
     opacity: 1;
+    scale: 1;
   }
 }
 
+/* Enhanced controls with better spacing */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.imageToggle {
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 0.875rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.imageToggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.imageToggle:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+.imageToggle.active {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 6px 25px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.imageToggle svg {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.speakButton {
+  min-width: 140px !important;
+  border-radius: 0.875rem !important;
+  padding: 0.875rem 1.5rem !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: #fff !important;
+  backdrop-filter: blur(10px);
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.speakButton:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.speakButton .text {
+  display: inline-block !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+}
+
+/* Enhanced SVG container with modern styling */
+.svgContainer {
+  margin: 2rem 0;
+  padding: 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  backdrop-filter: blur(15px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.svgContainer:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 15px 40px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.svgContainer svg {
+  width: 100%;
+  max-width: 450px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+}
+
+/* Responsive design with enhanced mobile experience */
 @media (max-width: 768px) {
   .chatContainer {
-    padding: 0.75rem;
+    padding: 1.5rem 1rem;
   }
 
   .header {
-    padding: 1.5rem 1rem;
+    padding: 2rem 1.5rem;
     margin-top: 1rem;
-    gap: 1.25rem;
+    gap: 2rem;
   }
 
   .header h1 {
-    font-size: 1.75rem;
+    font-size: 2.25rem;
+  }
+
+  .feelingSelector {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 0;
+  }
+
+  .feelingButton {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .emoji {
+    font-size: 1.5rem;
+  }
+
+  .headerControls {
+    gap: 1.25rem;
+  }
+
+  .controls {
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .chatContainer {
+    padding: 1rem 0.75rem;
+  }
+
+  .header {
+    padding: 1.75rem 1.25rem;
+    margin-top: 0.75rem;
+    gap: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
   }
 
   .feelingSelector {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 0.75rem;
-    padding: 0;
   }
 
   .feelingButton {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 0.75rem;
   }
 
   .emoji {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
+  }
+
+  .errorAlert {
+    width: 95%;
+    padding: 1rem 1.5rem;
   }
 
   .imageToggle {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.9rem;
+    border-radius: 0.75rem;
   }
 
   .imageToggle svg {
@@ -198,157 +493,40 @@
   }
 
   .speakButton {
-    min-width: 110px !important;
-    padding: 0.4rem 0.8rem !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .chatContainer {
-    padding: 0.5rem;
+    min-width: 120px !important;
+    padding: 0.625rem 1rem !important;
+    border-radius: 0.75rem !important;
   }
 
-  .header {
-    padding: 1.25rem 0.75rem;
-    margin-top: 0.75rem;
+  .headerControls {
     gap: 1rem;
   }
 
-  .header h1 {
-    font-size: 1.5rem;
+  .controls {
+    gap: 0.75rem;
   }
+}
 
-  .feelingSelector {
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.5rem;
-  }
-
-  .feelingButton {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    border-radius: 0.4rem;
-  }
-
-  .emoji {
-    font-size: 1.1rem;
-  }
-
-  .errorAlert {
-    width: 95%;
-    padding: 0.625rem 1.25rem;
-  }
-
-  .imageToggle {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
-    border-radius: 0.4rem;
-  }
-
-  .imageToggle span {
-    display: inline;
-  }
-
-  .imageToggle svg {
-    font-size: 0.9rem;
-  }
-
-  .speakButton {
-    min-width: 100px !important;
-    padding: 0.3rem 0.6rem !important;
-    border-radius: 0.4rem !important;
-  }
-
+/* Additional modern touches */
+@media (prefers-reduced-motion: reduce) {
+  .container,
+  .header,
   .feelingButton,
   .imageToggle,
-  .speakButton {
-    min-width: auto !important;
-    padding: 0.3rem 0.6rem !important;
-    border-radius: 0.4rem !important;
-  }
-
-  .feelingButton .text,
-  .imageToggle .text,
-  .speakButton .text {
-    display: inline !important;
+  .speakButton,
+  .svgContainer {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 
-.controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+/* Focus styles for accessibility */
+.feelingButton:focus-visible,
+.imageToggle:focus-visible,
+.speakButton:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
 }
 
-.imageToggle {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.imageToggle:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.imageToggle:active {
-  transform: translateY(0);
-}
-
-.imageToggle.active {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.imageToggle svg {
-  font-size: 1.1rem;
-}
-
-.speakButton {
-  min-width: 120px !important;
-  border-radius: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
-  background: rgba(255, 255, 255, 0.1) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
-  color: #fff !important;
-  backdrop-filter: blur(4px);
-}
-
-.speakButton:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-  transform: translateY(-1px);
-}
-
-.speakButton .text {
-  display: inline-block !important;
-  color: #fff !important;
-}
-
-/* SVG Message Styles */
-.svgContainer {
-  margin: 1rem 0;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.svgContainer svg {
-  width: 100%;
-  max-width: 400px;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-} 
+/* Note: Custom scrollbar styles should be added to a global CSS file */
