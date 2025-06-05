@@ -101,6 +101,19 @@ const normalizeText = (text: string): string => {
   return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 };
 
+const cleanText = (text: string): string => {
+  return text
+    .replace(/\*\*/g, '') // Remove markdown bold
+    .replace(/\*/g, '') // Remove markdown italic
+    .replace(/_/g, '') // Remove markdown underline
+    .replace(/`/g, '') // Remove markdown code
+    .replace(/#/g, '') // Remove markdown headers
+    .replace(/>/g, '') // Remove markdown blockquotes
+    .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newlines
+    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .trim();
+};
+
 export default function BibleReader() {
   const { userName } = useUserName();
   const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
@@ -174,7 +187,7 @@ export default function BibleReader() {
     setShowExplanation(false);
   };
 
-  const handleVerseClick = (verseNumber: number) => {
+  const handleVerseClick = (verseNumber: number, event: React.MouseEvent) => {
     setSelectedVerses(prev => {
       // If verse is already selected, remove it
       if (prev.includes(verseNumber)) {
@@ -190,7 +203,22 @@ export default function BibleReader() {
         const newSelection = [...prev, verseNumber].sort((a, b) => a - b);
         if (newSelection.length > 0 && !showExplanation) {
           setShowExplanation(true);
-          setShowToast(true);
+          
+          // Safely get the verse element position
+          const verseElement = event.currentTarget as HTMLElement;
+          if (verseElement) {
+            const rect = verseElement.getBoundingClientRect();
+            setPosition({
+              x: rect.left,
+              y: rect.bottom + window.scrollY + 10 // Add some padding
+            });
+          } else {
+            // Fallback position if element is not found
+            setPosition({
+              x: window.innerWidth / 2 - 250, // Center horizontally
+              y: window.scrollY + 100 // Below the top of the viewport
+            });
+          }
         }
         return newSelection;
       }
@@ -312,6 +340,31 @@ export default function BibleReader() {
     };
   }, [isDragging, dragOffset]);
 
+  const handleShare = async () => {
+    if (!response) return;
+
+    const shareText = `📖 Explicación de ${decodeBookName(selectedBook)} ${selectedChapter}:${selectedVerses.join(', ')}\n\n${response}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Explicación Bíblica',
+          text: shareText
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      try {
+        await navigator.clipboard.writeText(shareText);
+        alert('Texto copiado al portapapeles');
+      } catch (error) {
+        console.error('Error copying to clipboard:', error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
@@ -335,12 +388,6 @@ export default function BibleReader() {
         <Toast
           message="Selecciona los versículos que quieras entender mejor..."
           onClose={() => setShowWelcomeToast(false)}
-        />
-      )}
-      {showToast && selectedVerses.length > 0 && (
-        <Toast
-          message="Haz clic en 'Escribir explicación' para obtener una explicación de los versículos seleccionados..."
-          onClose={() => setShowToast(false)}
         />
       )}
       <div className={styles.content}>
@@ -419,7 +466,7 @@ export default function BibleReader() {
               <div 
                 key={index} 
                 className={`${styles.verse} ${selectedVerses.includes(verseNumber) ? styles.selectedVerse : ''}`}
-                onClick={() => handleVerseClick(verseNumber)}
+                onClick={(event) => handleVerseClick(verseNumber, event)}
               >
                 <span className={styles.verseNumber}>{verseNumber}</span>
                 <span className={styles.verseText}>{verse}</span>
@@ -444,18 +491,16 @@ export default function BibleReader() {
           <div 
             className={styles.explanationBox}
             style={{
-              transform: 'none',
-              left: position.x,
-              top: position.y,
-              cursor: isDragging ? 'grabbing' : 'grab'
+              left: `${position.x}px`,
+              top: `${position.y}px`
             }}
             onMouseDown={handleMouseDown}
           >
-            <div className={styles.selectedVersesInfo}>
-              <span>Versículos seleccionados: {selectedVerses.join(', ')}</span>
-            </div>
             {!response ? (
               <>
+                <div className={styles.selectedVersesInfo}>
+                  {selectedVerses.length} versículo{selectedVerses.length !== 1 ? 's' : ''} seleccionado{selectedVerses.length !== 1 ? 's' : ''}
+                </div>
                 <div className={styles.explanationActions}>
                   <button 
                     className={styles.explanationButton}
@@ -485,13 +530,14 @@ export default function BibleReader() {
               </>
             ) : (
               <div className={styles.responseContainer}>
-                <div className={styles.responseText}>{response}</div>
+                <div className={styles.responseText}>{cleanText(response)}</div>
                 <div className={styles.explanationActions}>
-                  <MuteButton 
-                    isSpeaking={isSpeaking}
-                    onToggle={() => isSpeaking ? stop() : speak(response)}
-                    className={styles.speakButton}
-                  />
+                  <button 
+                    className={styles.explanationButton}
+                    onClick={handleShare}
+                  >
+                    Compartir
+                  </button>
                   <button 
                     className={styles.explanationButton}
                     onClick={() => {
@@ -504,6 +550,19 @@ export default function BibleReader() {
                   >
                     Cerrar
                   </button>
+                </div>
+                <div className={styles.speakButtonContainer}>
+                  <MuteButton 
+                    isSpeaking={isSpeaking}
+                    onToggle={() => {
+                      if (isSpeaking) {
+                        stop();
+                      } else {
+                        speak(cleanText(response));
+                      }
+                    }}
+                    className={styles.speakButton}
+                  />
                 </div>
               </div>
             )}

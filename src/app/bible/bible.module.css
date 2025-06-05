@@ -749,48 +749,229 @@
 
 /* Modern Explanation Box */
 .explanationBox {
-  position: fixed;
+  position: absolute;
   background: rgba(26, 54, 93, 0.95);
   backdrop-filter: blur(20px) saturate(180%);
-  border-radius: 20px;
-  padding: 2rem;
-  
+  border-radius: 1rem;
   box-shadow: 
-    0 20px 60px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(0, 0, 0, 0.1);
-  
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
   z-index: 1000;
-  min-width: 320px;
-  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transform: translateY(0);
+  transition: transform 0.3s ease;
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  
-  /* Touch-friendly styles */
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-  cursor: move;
-  cursor: grab;
-  transition: transform 0.1s ease-out;
+  -webkit-overflow-scrolling: touch;
 }
 
-.explanationBox:active {
-  cursor: grabbing;
-  transform: scale(0.98);
+.selectedVersesInfo {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0.5rem;
 }
 
-/* Drag handle for mobile */
-.explanationBox::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 40px;
-  height: 4px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 2px;
-  margin: 8px 0;
+.explanationActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.explanationButton, .speakButton {
+  background: rgba(44, 82, 130, 0.8);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.explanationButton:hover, .speakButton:hover {
+  background: rgba(43, 108, 176, 0.9);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.explanationButton:disabled, .speakButton:disabled {
+  background: rgba(44, 82, 130, 0.4);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.responseContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.responseText {
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  white-space: pre-wrap;
+  font-size: 1rem;
+  padding: 0.5rem 0;
+}
+
+.speakButtonContainer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.speakButton {
+  background: rgba(44, 82, 130, 0.8);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  width: 100%;
+  max-width: 200px;
+  min-height: 44px; /* Minimum touch target size */
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .explanationBox {
+    width: 95%;
+    padding: 1.25rem;
+    max-height: 70vh;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: auto !important;
+    bottom: 1rem !important;
+    margin: 0 auto;
+    border-radius: 1rem;
+    position: fixed;
+  }
+
+  .responseText {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .explanationActions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .explanationButton {
+    width: 100%;
+    padding: 0.875rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+
+  .speakButtonContainer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+  }
+
+  .speakButton {
+    padding: 0.875rem;
+    font-size: 0.95rem;
+    min-height: 44px;
+  }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 480px) {
+  .explanationBox {
+    width: 100%;
+    border-radius: 1rem 1rem 0 0;
+    bottom: 0 !important;
+    padding: 1rem;
+    margin: 0;
+    max-height: 80vh;
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .responseText {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .explanationActions {
+    gap: 0.5rem;
+  }
+
+  .explanationButton {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .speakButtonContainer {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .speakButton {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+}
+
+/* Touch Device Styles */
+@media (hover: none) {
+  .explanationBox {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .explanationButton:active,
+  .speakButton:active {
+    transform: scale(0.98);
+    background: rgba(43, 108, 176, 0.8);
+  }
+
+  .explanationButton:hover,
+  .speakButton:hover {
+    transform: none;
+  }
+
+  /* Prevent text selection while dragging */
+  .explanationBox {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Safe Area Insets for Modern Mobile Devices */
+@supports (padding: max(0px)) {
+  .explanationBox {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* Rate Limit Alert */
@@ -929,7 +1110,7 @@
     line-height: 1.6;
   }
 
-  .explanationButton {
+  .explanationButton, .speakButton {
     padding: 0.875rem 1.75rem;
     font-size: 0.95rem;
     max-width: 260px;
@@ -957,7 +1138,7 @@
     line-height: 1.5;
   }
 
-  .explanationButton {
+  .explanationButton, .speakButton {
     padding: 0.75rem 1.5rem;
     font-size: 0.9rem;
     max-width: 240px;
@@ -1006,7 +1187,7 @@
     font-size: 1.05rem;
   }
 
-  .explanationButton {
+  .explanationButton, .speakButton {
     max-width: 280px;
   }
 }
