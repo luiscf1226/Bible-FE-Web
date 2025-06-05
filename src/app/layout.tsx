@@ -9,8 +9,8 @@ import { UserNameProvider } from "@/contexts/UserNameContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SoulVerse - Conectando con las Sagradas Escrituras",
-  description: "Un espacio para conectar con las Sagradas Escrituras, explorar tus emociones y recibir guía espiritual.",
+  title: "SoulVerse - Conectando con la Biblia",
+  description: "Un espacio para conectar con la Biblia, explorar tus emociones y recibir guía espiritual.",
 };
 
 export default function RootLayout({

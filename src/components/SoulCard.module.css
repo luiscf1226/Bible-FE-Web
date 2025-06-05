@@ -1,143 +1,414 @@
+/* Modern SoulCard Styles */
 .soulCard {
   --header-color: var(--color-primary);
   --button-color: var(--color-primary);
   --button-hover-color: var(--color-primary-dark);
   --title-color: var(--color-primary-dark);
-  transition: transform 0.2s ease-out;
-  border-radius: 1.25rem;
-  border: 1px solid var(--color-neutral-dark);
-  box-shadow: 0 4px 12px rgba(44, 62, 80, 0.05);
-  background: #fff;
+  
+  /* Modern card foundation */
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
   position: relative;
   width: 100%;
   max-width: 320px;
   margin: 0 auto;
-  box-sizing: border-box;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
 }
+
+.soulCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
 .soulCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(44, 62, 80, 0.08);
-  border-color: var(--color-primary);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.08),
+    0 8px 16px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(var(--color-primary-rgb, 91, 146, 165), 0.3);
 }
+
+.soulCard:hover::before {
+  opacity: 1;
+}
+
+.soulCard:active {
+  transform: translateY(-4px) scale(1.01);
+  transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Modern header with subtle animation */
 .header {
-  height: 0.75rem;
-  background: linear-gradient(90deg, var(--header-color), var(--color-primary-light), var(--header-color));
-  border-top-left-radius: 1.25rem;
-  border-top-right-radius: 1.25rem;
+  height: 4px;
+  background: linear-gradient(90deg, 
+    var(--header-color) 0%, 
+    var(--color-primary-light, #7dd3fc) 50%, 
+    var(--header-color) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s ease-in-out infinite;
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+  position: relative;
 }
+
+.header::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.4) 50%, 
+    transparent 100%);
+  transform: translateX(-100%);
+  animation: headerGlow 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes headerGlow {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Modern icon container */
 .iconContainer {
-  background: linear-gradient(135deg, var(--color-primary-light) 60%, var(--color-secondary-light) 100%);
-  box-shadow: 0 4px 24px 0 rgba(91,146,165,0.10);
-  border-radius: 9999px;
+  background: linear-gradient(135deg, 
+    var(--color-primary-light, #e0f2fe) 0%, 
+    var(--color-secondary-light, #f0f9ff) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 24px rgba(91, 146, 165, 0.08),
+    0 1px 2px rgba(91, 146, 165, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 3.5rem;
-  width: 3.5rem;
-  margin: 0 auto 1rem auto;
-  transition: box-shadow 0.3s;
-  overflow: hidden;
+  height: 4rem;
+  width: 4rem;
+  margin: 2rem auto 1.5rem auto;
   padding: 0;
-}
-.soulCard:hover .iconContainer {
-  box-shadow: 0 0 0 4px var(--header-color), 0 8px 32px 0 rgba(91,146,165,0.18);
-}
-.button {
-  background: linear-gradient(90deg, var(--button-color), var(--button-hover-color));
-  color: #fff;
-  border: none;
-  font-weight: 600;
-  border-radius: 0.75rem;
-  box-shadow: 0 2px 8px 0 rgba(91,146,165,0.10);
-  transition: background 0.3s, box-shadow 0.3s;
-}
-.button:hover {
-  background: linear-gradient(90deg, var(--button-hover-color), var(--button-color));
-  box-shadow: 0 4px 24px 0 rgba(91,146,165,0.15);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-/* Colorful Reference Card Styles - Main focus for current design */
+.iconContainer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    transparent 30%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 70%);
+  transform: rotate(45deg);
+  transition: all 0.6s ease;
+  opacity: 0;
+}
+
+.soulCard:hover .iconContainer {
+  transform: scale(1.1) rotate(2deg);
+  box-shadow: 
+    0 12px 32px rgba(91, 146, 165, 0.12),
+    0 0 0 1px rgba(var(--color-primary-rgb, 91, 146, 165), 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.soulCard:hover .iconContainer::before {
+  opacity: 1;
+  animation: iconShine 0.6s ease-out;
+}
+
+@keyframes iconShine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+/* Modern button styles */
+.button {
+  background: linear-gradient(135deg, 
+    var(--button-color) 0%, 
+    var(--button-hover-color) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 12px rgba(91, 146, 165, 0.08),
+    0 1px 2px rgba(91, 146, 165, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.025em;
+  padding: 0.875rem 1.75rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    transparent 100%);
+  transition: all 0.5s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 24px rgba(91, 146, 165, 0.15),
+    0 4px 8px rgba(91, 146, 165, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, 
+    var(--button-hover-color) 0%, 
+    var(--button-color) 100%);
+}
+
+.button:hover::before {
+  left: 100%;
+}
+
+.button:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+/* Modern Reference Card Styles */
 .referenceCard {
-  border-radius: 1.5rem;
-  padding: 3.5rem 2.5rem;
+  border-radius: 32px;
+  padding: 4rem 3rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: transform 0.2s ease-out;
   width: 100%;
+  min-height: 480px;
   cursor: pointer;
-  color: #e2e8f0;
+  color: #ffffff;
   position: relative;
   overflow: hidden;
-  min-height: 420px;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-/* Applying specific gradient backgrounds */
-.referenceBible {
-  background: linear-gradient(135deg, #2c5282 0%, #1a365d 100%);
-}
-
-.referenceEmotion {
-  background: linear-gradient(135deg, #553c9a 0%, #44337a 100%);
-}
-
-.referenceCharacter {
-  background: linear-gradient(135deg, #2c7a7b 0%, #234e52 100%);
-}
-
-/* Subtle glassy border effect */
 .referenceCard::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
   border-radius: inherit;
-  padding: 2px;
-  background: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
-  -webkit-mask: 
-     linear-gradient(#fff 0 0) content-box, 
-     linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  z-index: 0;
-  opacity: 0.9;
+  opacity: 0;
+  transition: all 0.4s ease;
+  pointer-events: none;
+}
+
+.referenceCard::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: inherit;
+  pointer-events: none;
   transition: all 0.4s ease;
 }
 
+.referenceBible {
+  background: linear-gradient(135deg, 
+    #2c5282 0%, 
+    #1a365d 30%, 
+    #2c5282 60%, 
+    #1a365d 100%);
+  background-size: 300% 300%;
+  animation: gradientDrift 20s ease infinite;
+}
+
+.referenceEmotion {
+  background: linear-gradient(135deg, 
+    #553c9a 0%, 
+    #44337a 30%, 
+    #553c9a 60%, 
+    #44337a 100%);
+  background-size: 300% 300%;
+  animation: gradientDrift 18s ease infinite;
+}
+
+.referenceCharacter {
+  background: linear-gradient(135deg, 
+    #2c7a7b 0%, 
+    #234e52 30%, 
+    #2c7a7b 60%, 
+    #234e52 100%);
+  background-size: 300% 300%;
+  animation: gradientDrift 22s ease infinite;
+}
+
+@keyframes gradientDrift {
+  0%, 100% { background-position: 0% 50%; }
+  25% { background-position: 100% 50%; }
+  50% { background-position: 100% 100%; }
+  75% { background-position: 0% 100%; }
+}
+
 .referenceCard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 
+    0 32px 80px rgba(0, 0, 0, 0.15),
+    0 12px 32px rgba(0, 0, 0, 0.1);
 }
 
 .referenceCard:hover::before {
   opacity: 1;
-  background: linear-gradient(145deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1));
 }
 
+.referenceCard:hover::after {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Modern reference icon container */
 .referenceIconContainer {
-  margin-bottom: 2.5rem;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: 
+    0 16px 32px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  width: 12rem;
+  height: 12rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
   position: relative;
   z-index: 1;
-  transition: transform 0.2s ease-out;
-  backdrop-filter: blur(4px);
-  width: 10rem;
-  height: 10rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.referenceIconContainer::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    transparent 70%);
+  transition: all 0.8s ease;
+  opacity: 0;
 }
 
 .referenceCard:hover .referenceIconContainer {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.08) rotate(3deg);
+  box-shadow: 
+    0 24px 48px rgba(0, 0, 0, 0.15),
+    0 8px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.referenceCard:hover .referenceIconContainer::before {
+  opacity: 1;
+  animation: iconGlow 1s ease-out;
+}
+
+@keyframes iconGlow {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Modern typography */
+.referenceTitle {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 2rem;
+  color: #ffffff;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+  
+  background: linear-gradient(135deg, 
+    #ffffff 0%, 
+    #f1f5f9 50%, 
+    #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  position: relative;
+  z-index: 1;
+}
+
+.referenceDescription {
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 auto;
+  max-width: 85%;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
 }
 
 .referenceContent {
@@ -146,151 +417,82 @@
   z-index: 1;
 }
 
-.referenceTitle {
-  font-size: 2.75rem;
-  font-weight: 800;
-  margin-bottom: 1.5rem;
-  color: #e2e8f0;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  line-height: 1.2;
-  letter-spacing: -0.5px;
-}
-
-.referenceDescription {
-  font-size: 1.75rem;
-  line-height: 1.6;
-  color: #cbd5e0;
-  margin: 0;
-  max-width: 85%;
-  margin-left: auto;
-  margin-right: auto;
-  font-weight: 500;
-  opacity: 0.95;
-}
-
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-  .referenceCard {
-    padding: 3rem 2rem;
-    min-height: 380px;
-  }
-  .referenceTitle {
-    font-size: 2.5rem;
-  }
-  .referenceDescription {
-    font-size: 1.5rem;
-  }
-  .referenceIconContainer {
-    margin-bottom: 2rem;
-    padding: 1.75rem;
-    width: 8rem;
-    height: 8rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .referenceCard {
-    border-radius: 1.25rem;
-    padding: 2.5rem 1.75rem;
-    min-height: 340px;
-  }
-  .referenceTitle {
-    font-size: 2.25rem;
-  }
-  .referenceDescription {
-    font-size: 1.35rem;
-  }
-  .referenceIconContainer {
-    margin-bottom: 1.75rem;
-    padding: 1.5rem;
-    width: 7rem;
-    height: 7rem;
-  }
-}
-
+/* Image handling */
 .referenceIconContainer img,
 .iconContainer img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  border-radius: 50%;
-  transform: scale(1.5);
-  transition: transform 0.2s ease-out;
+  border-radius: inherit;
+  transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  filter: brightness(1.1) contrast(1.05);
 }
 
 .referenceCard:hover .referenceIconContainer img,
 .soulCard:hover .iconContainer img {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  filter: brightness(1.15) contrast(1.1);
 }
 
-/* Mobile Responsive Styles */
+/* Modern responsive design */
 @media (max-width: 768px) {
-  .cardContainer {
-    padding: 1rem;
-    margin: 0 auto;
-    width: 100%;
+  .referenceCard {
+    padding: 3rem 2rem;
+    min-height: 420px;
+    border-radius: 28px;
   }
-
-  .soulCard {
-    max-width: 240px;
-    border-radius: 1rem;
-    margin: 0 auto;
-    width: 100%;
+  
+  .referenceTitle {
+    font-size: 2.5rem;
   }
-
-  .header {
-    height: 0.5rem;
-    border-top-left-radius: 1rem;
-    border-top-right-radius: 1rem;
+  
+  .referenceDescription {
+    font-size: 1.5rem;
   }
-
-  .iconContainer {
-    height: 3rem;
-    width: 3rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .button {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 0.5rem;
+  
+  .referenceIconContainer {
+    width: 10rem;
+    height: 10rem;
+    margin-bottom: 2.5rem;
   }
 }
 
-@media (max-width: 480px) {
-  .cardContainer {
-    padding: 1rem;
-    margin: 0 auto;
-    width: 100%;
-    max-width: 100%;
-  }
-
+@media (max-width: 640px) {
   .soulCard {
-    max-width: 160px;
-    border-radius: 0.875rem;
-    margin: 0 auto;
-    width: 100%;
+    border-radius: 20px;
   }
-
+  
+  .referenceCard {
+    border-radius: 24px;
+    padding: 2.5rem 1.75rem;
+    min-height: 380px;
+  }
+  
+  .referenceTitle {
+    font-size: 2.25rem;
+  }
+  
+  .referenceDescription {
+    font-size: 1.35rem;
+  }
+  
+  .referenceIconContainer {
+    width: 8rem;
+    height: 8rem;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+  }
+  
   .iconContainer {
-    height: 2rem;
-    width: 2rem;
-    margin-bottom: 0.4rem;
+    border-radius: 16px;
   }
-
+  
   .button {
-    padding: 0.3rem 0.6rem;
-    font-size: 0.75rem;
-  }
-
-  .mobileWrapper {
-    padding: 0;
-    width: 100%;
+    border-radius: 14px;
   }
 }
 
-/* Add container styles for better centering */
+/* Container utilities */
 .cardContainer {
   display: flex;
   justify-content: center;
@@ -298,14 +500,43 @@
   width: 100%;
   padding: 1rem;
   margin: 0 auto;
-  box-sizing: border-box;
 }
 
-/* Add wrapper for extra centering on mobile */
 .mobileWrapper {
   display: flex;
   justify-content: center;
   width: 100%;
   padding: 0;
-  box-sizing: border-box;
-} 
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+  .soulCard,
+  .referenceCard,
+  .iconContainer,
+  .referenceIconContainer,
+  .button {
+    animation: none;
+    transition: none;
+  }
+  
+  .header {
+    animation: none;
+  }
+  
+  .header::after {
+    animation: none;
+  }
+}
+
+/* Focus states for accessibility */
+.soulCard:focus-visible,
+.referenceCard:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+.button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}

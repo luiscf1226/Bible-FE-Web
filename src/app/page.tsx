@@ -12,6 +12,14 @@ interface BibleVerse {
   chapters: string[][];
 }
 
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center w-full h-32">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+    </div>
+  );
+}
+
 function MainContent() {
   const [showCharacters, setShowCharacters] = useState(false);
   const [bibleData, setBibleData] = useState<BibleVerse[]>([]);
@@ -39,7 +47,7 @@ function MainContent() {
         }
         setBibleData(data);
       } catch (error) {
-        //console.error('Error loading Bible data:', error);
+        console.error('Error loading Bible data:', error);
       } finally {
         setLoading(false);
       }
@@ -57,25 +65,28 @@ function MainContent() {
               <div className={styles.heroSection}>
                 <h2 className={styles.mainHeading}>Bienvenido a SoulVerse</h2>
                 <p className={styles.subheading}>
-                  Un espacio para conectar con las Sagradas Escrituras, explorar tus emociones y recibir guía espiritual.
+                  Un espacio para conectar con la Palabra de Dios, explorar tus emociones y recibir guía espiritual.
                 </p>
               </div>
 
-              {!loading && bibleData.length > 0 && (
+              {loading ? (
+                <LoadingSpinner />
+              ) : bibleData.length > 0 ? (
                 <DailyVerse bibleData={bibleData} />
-              )}
+              ) : null}
+
               {showComingSoon ? (
-                <Suspense fallback={<div>Cargando...</div>}>
+                <Suspense fallback={<LoadingSpinner />}>
                   <ComingSoon />
                 </Suspense>
               ) : (
-                <div className={`${styles.cardsContainer} grid grid-cols-1 md:grid-cols-3 gap-6 justify-items-center`}>
+                <div className={`${styles.cardsContainer} grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 justify-items-center`}>
                   <SoulCard
                     headerColor=""
-                    icon={<img src="/read.png" alt="Bible Icon" />}
+                    icon={<img src="/read.png" alt="Bible Icon" className="w-full h-full object-contain" />}
                     title="Leer la Biblia"
                     titleColor="var(--color-text-on-dark)"
-                    description="Explora las escrituras, busca versículos, pregunta sobre cualquier versículo y obtén una explicación detallada."
+                    description="Explora las escrituras, selecciona versículos, busca referencias, selecciona un versículo y obtén una explicación detallada de cada pasaje."
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -85,10 +96,10 @@ function MainContent() {
                   />
                   <SoulCard
                     headerColor=""
-                    icon={<img src="/feelings.png" alt="Feelings Icon" />}
+                    icon={<img src="/feelings.png" alt="Feelings Icon" className="w-full h-full object-contain" />}
                     title="¿Cómo Te Sientes?"
                     titleColor="var(--color-text-on-dark)"
-                    description="Comparte tus emociones y recibe versículos, reflexiones y oraciones personalizadas."
+                    description="Escoje una emoción y recibe un versículo, reflexiones y oraciones personalizadas."
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -98,7 +109,7 @@ function MainContent() {
                   />
                   <SoulCard
                     headerColor=""
-                    icon={<img src="/character.png" alt="Character Icon" />}
+                    icon={<img src="/character.png" alt="Character Icon" className="w-full h-full object-contain" />}
                     title="Habla con un Personaje Bíblico"
                     titleColor="var(--color-text-on-dark)"
                     description="Conversa con figuras bíblicas y recibe sabiduría desde su perspectiva espiritual."
@@ -114,7 +125,7 @@ function MainContent() {
                   />
                   <SoulCard
                     headerColor=""
-                    icon={<img src="/praying.png" alt="Prayer Icon" />}
+                    icon={<img src="/praying.png" alt="Prayer Icon" className="w-full h-full object-contain" />}
                     title="Tiempo de oración"
                     titleColor="var(--color-text-on-dark)"
                     description="Aquí puedes generar una oración personalizada según cómo te sientas hoy y presentar una petición especial."
@@ -158,7 +169,7 @@ export default function SoulVerseDashboard() {
         <div className={styles.container}>
           <main className={styles.mainContent}>
             <div className={styles.heroSection}>
-              <h2 className={styles.mainHeading}>Cargando...</h2>
+              <LoadingSpinner />
             </div>
           </main>
         </div>

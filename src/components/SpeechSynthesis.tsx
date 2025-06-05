@@ -62,7 +62,7 @@ const showElevenLabsLimitAlert = () => {
       <span style="font-size: 20px;">🔊</span>
       <div>
         <strong>Audio Limit Reached</strong>
-        <p style="margin: 5px 0 0 0;">You've reached your daily limit of 10 audio requests. Please try again tomorrow.</p>
+        <p style="margin: 5px 0 0 0;">You've reached your daily limit of 3 premium audio requests. Using standard audio instead.</p>
       </div>
     </div>
   `;
@@ -298,6 +298,34 @@ export const useSpeechSynthesis = () => {
     }
   };
 
+  const getBestAvailableVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    
+    // First try to find a Spanish voice
+    const spanishVoice = voices.find(voice => 
+      voice.lang.includes('es') || 
+      voice.name.includes('Spanish') || 
+      voice.name.includes('Español')
+    );
+    
+    if (spanishVoice) {
+      return spanishVoice;
+    }
+    
+    // If no Spanish voice, try to find an English voice
+    const englishVoice = voices.find(voice => 
+      voice.lang.includes('en') || 
+      voice.name.includes('English')
+    );
+    
+    if (englishVoice) {
+      return englishVoice;
+    }
+    
+    // If no specific language voice is found, return the first available voice
+    return voices[0] || null;
+  };
+
   const speakText = async (text: string, options?: {
     onStart?: () => void;
     onEnd?: () => void;
@@ -313,8 +341,38 @@ export const useSpeechSynthesis = () => {
 
       // Check rate limit for ElevenLabs audio
       if (userName && handleRateLimit('elevenlabs_audio', userName)) {
-        showElevenLabsLimitAlert();
-        throw new Error('Rate limit exceeded');
+        // Instead of throwing error, fallback to browser synthesis
+        const utterance = new SpeechSynthesisUtterance(processTextForNaturalSpeech(text));
+        const voice = getBestAvailableVoice();
+        
+        if (voice) {
+          utterance.voice = voice;
+          utterance.lang = voice.lang; // Use the voice's native language
+        } else {
+          utterance.lang = 'es-ES'; // Default to Spanish if no voice found
+        }
+        
+        utterance.rate = 0.9; // Slightly slower for better clarity
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+        
+        utterance.onstart = () => {
+          setState(prev => ({ ...prev, isSpeaking: true }));
+          options?.onStart?.();
+        };
+        
+        utterance.onend = () => {
+          setState(prev => ({ ...prev, isSpeaking: false }));
+          options?.onEnd?.();
+        };
+        
+        utterance.onerror = () => {
+          setState(prev => ({ ...prev, isSpeaking: false }));
+          options?.onError?.();
+        };
+        
+        window.speechSynthesis.speak(utterance);
+        return;
       }
 
       const processedText = processTextForNaturalSpeech(text);
@@ -346,7 +404,18 @@ export const useSpeechSynthesis = () => {
         
         if (response.status === 401 && errorText.includes('quota_exceeded')) {
           const utterance = new SpeechSynthesisUtterance(processedText);
-          utterance.lang = 'es-ES';
+          const voice = getBestAvailableVoice();
+          
+          if (voice) {
+            utterance.voice = voice;
+            utterance.lang = voice.lang;
+          } else {
+            utterance.lang = 'es-ES';
+          }
+          
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
           
           utterance.onstart = () => {
             setState(prev => ({ ...prev, isSpeaking: true }));
@@ -401,7 +470,18 @@ export const useSpeechSynthesis = () => {
       if (!error.message?.includes('quota_exceeded')) {
         try {
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'es-ES';
+          const voice = getBestAvailableVoice();
+          
+          if (voice) {
+            utterance.voice = voice;
+            utterance.lang = voice.lang;
+          } else {
+            utterance.lang = 'es-ES';
+          }
+          
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
           
           utterance.onstart = () => {
             setState(prev => ({ ...prev, isSpeaking: true }));
@@ -447,7 +527,7 @@ export const useSpeechSynthesis = () => {
     setState(prev => ({ ...prev, isSpeaking: false }));
   };
 
-  return {
+   return {
     speak: speakText,
     stop,
     isSpeaking: state.isSpeaking,

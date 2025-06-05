@@ -22,7 +22,7 @@ const Footer = () => {
           <div className={styles.footerSection}>
             <h3 className={styles.footerTitle}>SoulVerse</h3>
             <p className={styles.footerDescription}>
-              Un espacio para conectar con las Sagradas Escrituras y encontrar paz espiritual.
+              Un espacio para conectar con la Palabra de Dios y encontrar paz espiritual.
             </p>
           </div>
           

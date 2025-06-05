@@ -12,6 +12,7 @@ export default function PrayerPage() {
   const [petition, setPetition] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [generatedPrayer, setGeneratedPrayer] = useState<{
     prayer: string;
     bible_verses: string[];
@@ -57,8 +58,51 @@ export default function PrayerPage() {
     }
   };
 
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleShare = async () => {
+    if (!generatedPrayer) return;
+
+    const shareData = {
+      title: 'Mi Oración Personalizada',
+      text: `${generatedPrayer.prayer}\n\nVersículos Bíblicos:\n${generatedPrayer.bible_verses.join('\n')}\n\nExplicación:\n${generatedPrayer.explanation}`,
+      url: window.location.href
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        // Fallback for browsers that don't support the Web Share API
+        await navigator.clipboard.writeText(shareData.text);
+        showToast('Oración copiada al portapapeles', 'success');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      // Fallback to clipboard if sharing fails
+      try {
+        await navigator.clipboard.writeText(shareData.text);
+        showToast('Oración copiada al portapapeles', 'success');
+      } catch (clipboardError) {
+        console.error('Error copying to clipboard:', clipboardError);
+        showToast('No se pudo compartir la oración', 'error');
+      }
+    }
+  };
+
   return (
     <div className={styles.container}>
+      {toast && (
+        <div className={`${styles.toast} ${styles[toast.type]}`}>
+          <span className={styles.toastIcon}>
+            {toast.type === 'success' ? '✓' : '⚠️'}
+          </span>
+          {toast.message}
+        </div>
+      )}
       <div className={styles.header}>
         <button 
           className={styles.backButton}
@@ -150,7 +194,11 @@ export default function PrayerPage() {
               </div>
             </div>
             <div className={styles.prayerFooter}>
-              <button className={styles.shareButton}>
+              <button 
+                className={styles.shareButton}
+                onClick={handleShare}
+                title="Compartir oración"
+              >
                 <span className={styles.shareIcon}>📤</span>
                 Compartir Oración
               </button>
