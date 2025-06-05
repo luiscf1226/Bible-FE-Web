@@ -12,6 +12,23 @@ import MuteButton from '@/components/MuteButton';
 import styles from './chat.module.css';
 import { FaImage } from 'react-icons/fa';
 
+const Toast = ({ message, onClose }: { message: string; onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={styles.toast}>
+      <p>{message}</p>
+      <button onClick={onClose}>×</button>
+    </div>
+  );
+};
+
 const feelings = [
   { text: 'Alegría', emoji: '😊', theme: { accent: 'rgba(234, 179, 8, 0.8)', border: 'rgba(234, 179, 8, 0.3)' } },
   { text: 'Tristeza', emoji: '😢', theme: { accent: 'rgba(59, 130, 246, 0.8)', border: 'rgba(59, 130, 246, 0.3)' } },
@@ -41,6 +58,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [includeSvg, setIncludeSvg] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const { userName } = useUserName();
   const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,6 +76,11 @@ export default function ChatPage() {
       scrollToBottom();
     }
   }, [messages]);
+
+  const handleFeelingSelect = (feeling: string) => {
+    setSelectedFeeling(feeling);
+    setShowToast(true);
+  };
 
   const handleSendMessage = async (message: string) => {
     if (!selectedFeeling) {
@@ -141,6 +164,12 @@ export default function ChatPage() {
           setRateLimitInfo(null);
         }}
       />
+      {showToast && selectedFeeling && (
+        <Toast
+          message={`Escribe sobre tu ${selectedFeeling.toLowerCase()} en el chat por de bajo...`}
+          onClose={() => setShowToast(false)}
+        />
+      )}
       <div className={styles.chatContainer}>
         <div className={styles.header}>
           <div className={styles.headerControls}>
@@ -149,14 +178,14 @@ export default function ChatPage() {
               <button
                 className={`${styles.imageToggle} ${includeSvg ? styles.active : ''}`}
                 onClick={() => setIncludeSvg(!includeSvg)}
-                title={includeSvg ? "Desactivar imágenes" : "Activar imágenes"}
+                title={includeSvg ? "Desactivar imágenes generadas por IA" : "Activar imágenes generadas por IA"}
                 style={selectedFeelingData ? {
                   background: selectedFeelingData.theme.accent,
                   borderColor: selectedFeelingData.theme.border
                 } : undefined}
               >
                 <FaImage />
-                <span>{includeSvg ? "Imágenes activadas" : "Activar imágenes"}</span>
+                <span>{includeSvg ? "Imágenes IA activadas" : "Activar imágenes IA"}</span>
               </button>
               <MuteButton 
                 isSpeaking={isSpeaking}
@@ -174,7 +203,7 @@ export default function ChatPage() {
               <button
                 key={feeling.text}
                 className={`${styles.feelingButton} ${selectedFeeling === feeling.text ? styles.selected : ''}`}
-                onClick={() => setSelectedFeeling(feeling.text)}
+                onClick={() => handleFeelingSelect(feeling.text)}
                 style={selectedFeeling === feeling.text ? {
                   background: feeling.theme.accent,
                   borderColor: feeling.theme.border
@@ -208,6 +237,7 @@ export default function ChatPage() {
           onSendMessage={handleSendMessage} 
           disabled={isLoading || !selectedFeeling}
           theme={selectedFeelingData?.theme}
+          placeholder={selectedFeeling ? `Cuéntame sobre tu ${selectedFeeling.toLowerCase()}...` : "Selecciona un sentimiento para comenzar..."}
         />
       </div>
     </div>

@@ -10,9 +10,10 @@ interface ChatInputProps {
     accent: string;
     border: string;
   };
+  placeholder?: string;
 }
 
-export default function ChatInput({ onSendMessage, disabled = false, theme }: ChatInputProps) {
+export default function ChatInput({ onSendMessage, disabled = false, theme, placeholder = "Escribe tu mensaje..." }: ChatInputProps) {
   const [message, setMessage] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,7 +30,7 @@ export default function ChatInput({ onSendMessage, disabled = false, theme }: Ch
         type="text"
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Escribe tu mensaje..."
+        placeholder={placeholder}
         className={styles.input}
         disabled={disabled}
       />

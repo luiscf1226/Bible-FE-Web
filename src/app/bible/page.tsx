@@ -7,6 +7,7 @@ import { useRateLimit } from '@/contexts/RateLimitContext';
 import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
+import Toast from '@/components/Toast';
 
 interface BibleVerse {
   abbrev: string;
@@ -126,6 +127,8 @@ export default function BibleReader() {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [response, setResponse] = useState<string | null>(null);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
+  const [showToast, setShowToast] = useState(false);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(true);
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -184,11 +187,12 @@ export default function BibleReader() {
       
       // If verse is not selected and we haven't reached the limit of 10 verses
       if (prev.length < 10) {
-      const newSelection = [...prev, verseNumber].sort((a, b) => a - b);
-      if (newSelection.length > 0 && !showExplanation) {
-        setShowExplanation(true);
-      }
-      return newSelection;
+        const newSelection = [...prev, verseNumber].sort((a, b) => a - b);
+        if (newSelection.length > 0 && !showExplanation) {
+          setShowExplanation(true);
+          setShowToast(true);
+        }
+        return newSelection;
       }
       
       // If we've reached the limit, don't add more verses
@@ -327,6 +331,18 @@ export default function BibleReader() {
 
   return (
     <div className={styles.container}>
+      {showWelcomeToast && (
+        <Toast
+          message="Selecciona los versículos que quieras entender mejor..."
+          onClose={() => setShowWelcomeToast(false)}
+        />
+      )}
+      {showToast && selectedVerses.length > 0 && (
+        <Toast
+          message="Haz clic en 'Escribir explicación' para obtener una explicación de los versículos seleccionados..."
+          onClose={() => setShowToast(false)}
+        />
+      )}
       <div className={styles.content}>
         <div className={styles.controls}>
           <div className={styles.selectGroup}>

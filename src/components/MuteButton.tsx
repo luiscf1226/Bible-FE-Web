@@ -1,5 +1,6 @@
+// MuteButton.tsx
 import styles from './MuteButton.module.css';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface MuteButtonProps {
   isSpeaking: boolean;
@@ -8,20 +9,31 @@ interface MuteButtonProps {
   style?: React.CSSProperties;
 }
 
-export const MuteButton: React.FC<MuteButtonProps> = ({ 
-  isSpeaking, 
+export const MuteButton: React.FC<MuteButtonProps> = ({
+  isSpeaking,
   onToggle,
   className = '',
   style
 }) => {
-  // Stop speaking when component unmounts
+  // Use ref to track if we should cleanup on unmount
+  const shouldCleanupRef = useRef(false);
+
+  // Only cleanup when component unmounts, not on re-renders
   useEffect(() => {
+    shouldCleanupRef.current = isSpeaking;
+    
     return () => {
-      if (isSpeaking) {
+      // Only stop if we were speaking when component unmounts
+      if (shouldCleanupRef.current) {
         onToggle();
       }
     };
-  }, [isSpeaking, onToggle]);
+  }, []); // Empty dependency array - only run on mount/unmount
+
+  // Update the ref when speaking state changes, but don't trigger cleanup
+  useEffect(() => {
+    shouldCleanupRef.current = isSpeaking;
+  }, [isSpeaking]);
 
   return (
     <button
@@ -53,4 +65,4 @@ export const MuteButton: React.FC<MuteButtonProps> = ({
   );
 };
 
-export default MuteButton; 
+export default MuteButton;

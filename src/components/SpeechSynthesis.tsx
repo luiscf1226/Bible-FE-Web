@@ -17,16 +17,6 @@ interface SpeechSynthesisState {
   currentVoiceIndex: number;
 }
 
-interface SpeechQueueItem {
-  text: string;
-  voice: SpeechSynthesisVoice;
-  options?: {
-    onStart?: () => void;
-    onEnd?: () => void;
-    onError?: () => void;
-  };
-}
-
 const processTextForNaturalSpeech = (text: string): string => {
   return text
     .replace(/([.,;:!?])/g, '$1 ')
@@ -102,200 +92,53 @@ export const useSpeechSynthesis = () => {
   });
   const { userName } = useUserName();
 
-  // Create a ref to store the speech queue
-  const speechQueue = useRef<SpeechQueueItem[]>([]);
-  const isProcessingQueue = useRef(false);
-  const currentUtterance = useRef<SpeechSynthesisUtterance | null>(null);
-  const retryCount = useRef(0);
-  const maxRetries = 3;
+  // Create refs to manage speech state
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const isSpeakingRef = useRef(false);
 
   // Initialize speech synthesis
   useEffect(() => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
-      // Ensure we have voices loaded
-      if (window.speechSynthesis.getVoices().length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
+      console.log('Speech synthesis available');
+      
+      // Function to initialize voices
+      const initializeVoices = () => {
+        const voices = window.speechSynthesis.getVoices();
+        console.log('Available voices:', voices.map(v => `${v.name} (${v.lang})`));
+        
+        if (voices.length > 0) {
           setState(prev => ({ ...prev, isInitialized: true }));
-        };
-      } else {
-        setState(prev => ({ ...prev, isInitialized: true }));
+        }
+      };
+
+      // Try to get voices immediately
+      initializeVoices();
+
+      // If no voices are available, wait for them to load
+      if (window.speechSynthesis.getVoices().length === 0) {
+        console.log('No voices loaded, waiting for voices to be available');
+        window.speechSynthesis.onvoiceschanged = initializeVoices;
       }
+    } else {
+      console.log('Speech synthesis not available');
     }
   }, []);
 
-  const getAllVoices = () => {
-    const voices = window.speechSynthesis.getVoices();
-    return voices.sort((a, b) => {
-      // Prioritize Spanish voices
-      const aIsSpanish = a.lang.includes('es');
-      const bIsSpanish = b.lang.includes('es');
-      if (aIsSpanish && !bIsSpanish) return -1;
-      if (!aIsSpanish && bIsSpanish) return 1;
-      return 0;
-    });
-  };
-
-  const getNextVoice = () => {
-    const voices = getAllVoices();
-    if (voices.length === 0) return null;
-
-    // Try to find a Spanish voice first
-    const spanishVoice = voices.find(voice => 
-      voice.lang.includes('es') || 
-      voice.name.includes('Spanish') || 
-      voice.name.includes('Español')
-    );
-
-    if (spanishVoice) {
-      return spanishVoice;
-    }
-
-    // If no Spanish voice, try to find any voice
-    const nextIndex = (state.currentVoiceIndex + 1) % voices.length;
-    setState(prev => ({ ...prev, currentVoiceIndex: nextIndex }));
-    return voices[nextIndex];
-  };
-
-  const processQueue = () => {
-    if (isProcessingQueue.current || speechQueue.current.length === 0 || !state.isInitialized) return;
-
-    isProcessingQueue.current = true;
-    const item = speechQueue.current[0];
-
-    // Create new utterance
-    const utterance = new SpeechSynthesisUtterance(item.text);
-    currentUtterance.current = utterance;
-    
-    // Try different voices if current one fails
-    const voice = getNextVoice();
-    if (!voice) {
-      console.error('No voices available');
-      isProcessingQueue.current = false;
-      return;
-    }
-
-    utterance.lang = 'es-ES';
-    utterance.voice = voice;
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-
-    utterance.onstart = () => {
-      console.log('Speech started with voice:', voice.name);
-      retryCount.current = 0;
-      setState(prev => ({ ...prev, isSpeaking: true }));
-      item.options?.onStart?.();
-    };
-
-    utterance.onend = () => {
-      console.log('Speech ended');
-      setState(prev => ({ ...prev, isSpeaking: false }));
-      item.options?.onEnd?.();
-      
-      // Remove the completed item from the queue
-      speechQueue.current.shift();
-      isProcessingQueue.current = false;
-      currentUtterance.current = null;
-      
-      // Process next item if any
-      if (speechQueue.current.length > 0) {
-        setTimeout(processQueue, 100);
-      }
-    };
-
-    utterance.onerror = (event) => {
-      console.log('Speech error:', event);
-      
-      // Try next voice if current one fails
-      if (retryCount.current < maxRetries) {
-        retryCount.current++;
-        console.log(`Retrying with different voice (attempt ${retryCount.current})`);
-        isProcessingQueue.current = false;
-        processQueue();
-        return;
-      }
-
-      if (event.error === 'interrupted' || event.error === 'canceled') {
-        setState(prev => ({ ...prev, isSpeaking: false }));
-        return;
-      }
-      
-      console.error('Browser speech synthesis error:', event);
-      setState(prev => ({ ...prev, isSpeaking: false }));
-      item.options?.onError?.();
-      showElevenLabsLimitAlert();
-    };
-
-    try {
-      // Ensure speech synthesis is in a good state
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-
-      // Speak the utterance
-      window.speechSynthesis.speak(utterance);
-    } catch (error) {
-      console.error('Error speaking text:', error);
-      isProcessingQueue.current = false;
-      currentUtterance.current = null;
-      
-      // Try next voice if current one fails
-      if (retryCount.current < maxRetries) {
-        retryCount.current++;
-        console.log(`Retrying with different voice (attempt ${retryCount.current})`);
-        setTimeout(processQueue, 100);
-      }
-    }
-  };
-
-  const speakWithBrowser = (text: string, options?: {
-    onStart?: () => void;
-    onEnd?: () => void;
-    onError?: () => void;
-  }) => {
-    try {
-      if (!window.speechSynthesis || !state.isInitialized) {
-        throw new Error('Browser speech synthesis not available or not initialized');
-      }
-
-      const voices = getAllVoices();
-      if (voices.length === 0) {
-        window.speechSynthesis.onvoiceschanged = () => {
-          const voices = getAllVoices();
-          if (voices.length > 0) {
-            const voice = voices[0];
-            addToQueue(text, voice, options);
-          }
-        };
-        return;
-      }
-
-      const voice = voices[0];
-      addToQueue(text, voice, options);
-      return true;
-    } catch (error) {
-      console.error('Browser speech synthesis error:', error);
-      setState(prev => ({ ...prev, isSpeaking: false }));
-      options?.onError?.();
-      showElevenLabsLimitAlert();
-      return false;
-    }
-  };
-
-  const addToQueue = (text: string, voice: SpeechSynthesisVoice, options?: {
-    onStart?: () => void;
-    onEnd?: () => void;
-    onError?: () => void;
-  }) => {
-    if (!text || !voice) return;
-    
-    speechQueue.current.push({ text, voice, options });
-    if (!isProcessingQueue.current) {
-      processQueue();
-    }
+  const cleanTextForSpeech = (text: string): string => {
+    return text
+      // Remove markdown formatting
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .replace(/#/g, '')
+      .replace(/\[.*?\]/g, '')
+      .replace(/\(.*?\)/g, '')
+      // Remove emojis and special characters
+      .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+      .replace(/[^\p{L}\p{N}\p{P}\p{Z}]/gu, '')
+      // Clean up extra spaces
+      .replace(/\s+/g, ' ')
+      .trim();
   };
 
   const getBestAvailableVoice = () => {
@@ -326,6 +169,133 @@ export const useSpeechSynthesis = () => {
     return voices[0] || null;
   };
 
+  const speakWithBrowser = (text: string, options?: {
+    onStart?: () => void;
+    onEnd?: () => void;
+    onError?: () => void;
+  }): Promise<boolean> => {
+    return new Promise((resolve) => {
+      try {
+        if (!window.speechSynthesis) {
+          console.error('Browser speech synthesis not available');
+          resolve(false);
+          return;
+        }
+
+        // Clean the text before speaking
+        const cleanText = cleanTextForSpeech(text);
+        console.log('Cleaned text for speech:', cleanText);
+
+        // Stop any ongoing speech first
+        if (currentUtteranceRef.current || window.speechSynthesis.speaking) {
+          window.speechSynthesis.cancel();
+          currentUtteranceRef.current = null;
+        }
+
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        currentUtteranceRef.current = utterance;
+        
+        const voices = window.speechSynthesis.getVoices();
+        
+        if (voices.length === 0) {
+          console.error('No voices available');
+          resolve(false);
+          return;
+        }
+
+        // Try to find a Spanish voice
+        const spanishVoice = getBestAvailableVoice();
+
+        if (spanishVoice) {
+          console.log('Using voice:', spanishVoice.name);
+          utterance.voice = spanishVoice;
+          utterance.lang = spanishVoice.lang;
+        } else {
+          console.log('No suitable voice found, using default');
+          utterance.lang = 'es-ES';
+        }
+
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 1.0;
+
+        // Set up event handlers
+        utterance.onstart = () => {
+          if (currentUtteranceRef.current === utterance) {
+            console.log('Browser speech started successfully');
+            isSpeakingRef.current = true;
+            setState(prev => ({ ...prev, isSpeaking: true }));
+            options?.onStart?.();
+          }
+        };
+
+        utterance.onend = () => {
+          if (currentUtteranceRef.current === utterance) {
+            console.log('Browser speech ended successfully');
+            currentUtteranceRef.current = null;
+            isSpeakingRef.current = false;
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onEnd?.();
+            resolve(true);
+          }
+        };
+
+        utterance.onerror = (event) => {
+          console.error('Browser speech error:', event.error, event);
+          
+          // Only handle the error if this is still the current utterance
+          if (currentUtteranceRef.current === utterance) {
+            currentUtteranceRef.current = null;
+            
+            // Don't treat 'interrupted' or 'canceled' as real errors
+            if (event.error === 'canceled' || event.error === 'interrupted') {
+              console.log('Speech was canceled/interrupted, not a real error');
+              isSpeakingRef.current = false;
+              setState(prev => ({ ...prev, isSpeaking: false }));
+              resolve(false);
+              return;
+            }
+            
+            isSpeakingRef.current = false;
+            setState(prev => ({ ...prev, isSpeaking: false }));
+            options?.onError?.();
+            resolve(false);
+          }
+        };
+
+        // Ensure speech synthesis is ready
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
+
+        // Start speaking with a small delay to ensure everything is ready
+        setTimeout(() => {
+          if (currentUtteranceRef.current === utterance) {
+            try {
+              console.log('Starting browser speech synthesis...');
+              window.speechSynthesis.speak(utterance);
+            } catch (error) {
+              console.error('Error starting speech synthesis:', error);
+              currentUtteranceRef.current = null;
+              isSpeakingRef.current = false;
+              setState(prev => ({ ...prev, isSpeaking: false }));
+              options?.onError?.();
+              resolve(false);
+            }
+          }
+        }, 100);
+
+      } catch (error) {
+        console.error('Error in browser speech synthesis:', error);
+        currentUtteranceRef.current = null;
+        isSpeakingRef.current = false;
+        setState(prev => ({ ...prev, isSpeaking: false }));
+        options?.onError?.();
+        resolve(false);
+      }
+    });
+  };
+
   const speakText = async (text: string, options?: {
     onStart?: () => void;
     onEnd?: () => void;
@@ -333,46 +303,23 @@ export const useSpeechSynthesis = () => {
   }) => {
     if (!text) return;
 
+    // Prevent multiple simultaneous speech attempts
+    if (isSpeakingRef.current) {
+      console.log('Already speaking, ignoring new request');
+      return;
+    }
+
     try {
       const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
       if (!apiKey) {
-        throw new Error('ElevenLabs API key not found');
+        console.log('No ElevenLabs API key found, using browser synthesis');
+        return await speakWithBrowser(text, options);
       }
 
       // Check rate limit for ElevenLabs audio
       if (userName && handleRateLimit('elevenlabs_audio', userName)) {
-        // Instead of throwing error, fallback to browser synthesis
-        const utterance = new SpeechSynthesisUtterance(processTextForNaturalSpeech(text));
-        const voice = getBestAvailableVoice();
-        
-        if (voice) {
-          utterance.voice = voice;
-          utterance.lang = voice.lang; // Use the voice's native language
-        } else {
-          utterance.lang = 'es-ES'; // Default to Spanish if no voice found
-        }
-        
-        utterance.rate = 0.9; // Slightly slower for better clarity
-        utterance.pitch = 1.0;
-        utterance.volume = 1.0;
-        
-        utterance.onstart = () => {
-          setState(prev => ({ ...prev, isSpeaking: true }));
-          options?.onStart?.();
-        };
-        
-        utterance.onend = () => {
-          setState(prev => ({ ...prev, isSpeaking: false }));
-          options?.onEnd?.();
-        };
-        
-        utterance.onerror = () => {
-          setState(prev => ({ ...prev, isSpeaking: false }));
-          options?.onError?.();
-        };
-        
-        window.speechSynthesis.speak(utterance);
-        return;
+        console.log('Rate limit reached, using browser synthesis');
+        return await speakWithBrowser(text, options);
       }
 
       const processedText = processTextForNaturalSpeech(text);
@@ -401,39 +348,11 @@ export const useSpeechSynthesis = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
+        console.log('ElevenLabs API error:', response.status, errorText);
         
-        if (response.status === 401 && errorText.includes('quota_exceeded')) {
-          const utterance = new SpeechSynthesisUtterance(processedText);
-          const voice = getBestAvailableVoice();
-          
-          if (voice) {
-            utterance.voice = voice;
-            utterance.lang = voice.lang;
-          } else {
-            utterance.lang = 'es-ES';
-          }
-          
-          utterance.rate = 0.9;
-          utterance.pitch = 1.0;
-          utterance.volume = 1.0;
-          
-          utterance.onstart = () => {
-            setState(prev => ({ ...prev, isSpeaking: true }));
-            options?.onStart?.();
-          };
-          
-          utterance.onend = () => {
-            setState(prev => ({ ...prev, isSpeaking: false }));
-            options?.onEnd?.();
-          };
-          
-          utterance.onerror = () => {
-            setState(prev => ({ ...prev, isSpeaking: false }));
-            options?.onError?.();
-          };
-          
-          window.speechSynthesis.speak(utterance);
-          return;
+        if (response.status === 401 || response.status === 403) {
+          console.log('ElevenLabs API unauthorized, falling back to browser synthesis');
+          return await speakWithBrowser(text, options);
         }
         
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -447,90 +366,92 @@ export const useSpeechSynthesis = () => {
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
       const audioElement = new Audio(audioUrl);
+      currentAudioRef.current = audioElement;
 
-      audioElement.onplay = () => {
-        setState(prev => ({ ...prev, isSpeaking: true }));
-        options?.onStart?.();
-      };
+      return new Promise<void>((resolve, reject) => {
+        audioElement.onplay = () => {
+          isSpeakingRef.current = true;
+          setState(prev => ({ ...prev, isSpeaking: true }));
+          options?.onStart?.();
+        };
 
-      audioElement.onended = () => {
-        setState(prev => ({ ...prev, isSpeaking: false }));
-        options?.onEnd?.();
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      audioElement.onerror = () => {
-        setState(prev => ({ ...prev, isSpeaking: false }));
-        options?.onError?.();
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      await audioElement.play();
-    } catch (error: any) {
-      if (!error.message?.includes('quota_exceeded')) {
-        try {
-          const utterance = new SpeechSynthesisUtterance(text);
-          const voice = getBestAvailableVoice();
-          
-          if (voice) {
-            utterance.voice = voice;
-            utterance.lang = voice.lang;
-          } else {
-            utterance.lang = 'es-ES';
-          }
-          
-          utterance.rate = 0.9;
-          utterance.pitch = 1.0;
-          utterance.volume = 1.0;
-          
-          utterance.onstart = () => {
-            setState(prev => ({ ...prev, isSpeaking: true }));
-            options?.onStart?.();
-          };
-          
-          utterance.onend = () => {
+        audioElement.onended = () => {
+          if (currentAudioRef.current === audioElement) {
+            currentAudioRef.current = null;
+            isSpeakingRef.current = false;
             setState(prev => ({ ...prev, isSpeaking: false }));
             options?.onEnd?.();
-          };
-          
-          utterance.onerror = () => {
+            URL.revokeObjectURL(audioUrl);
+            resolve();
+          }
+        };
+
+        audioElement.onerror = () => {
+          if (currentAudioRef.current === audioElement) {
+            currentAudioRef.current = null;
+            isSpeakingRef.current = false;
             setState(prev => ({ ...prev, isSpeaking: false }));
             options?.onError?.();
-          };
-          
-          window.speechSynthesis.speak(utterance);
-          return;
-        } catch (fallbackError) {
-          // Silent fallback error
-        }
-      }
+            URL.revokeObjectURL(audioUrl);
+            reject(new Error('Audio playback failed'));
+          }
+        };
+
+        audioElement.play().catch((error) => {
+          console.error('Error playing ElevenLabs audio:', error);
+          if (currentAudioRef.current === audioElement) {
+            currentAudioRef.current = null;
+            isSpeakingRef.current = false;
+            setState(prev => ({ ...prev, isSpeking: false }));
+            URL.revokeObjectURL(audioUrl);
+            // Fall back to browser speech
+            speakWithBrowser(text, options);
+          }
+        });
+      });
+
+    } catch (error: any) {
+      console.log('ElevenLabs failed, falling back to browser synthesis:', error.message);
       
       if (error.message?.includes('quota') || error.message?.includes('limit') || error.message?.includes('429')) {
         setState(prev => ({ ...prev, isElevenLabsAvailable: false }));
         showElevenLabsLimitAlert();
       }
       
-      options?.onError?.();
+      // Always fall back to browser synthesis
+      return await speakWithBrowser(text, options);
     }
   };
 
   const stop = () => {
-    if (window.speechSynthesis) {
+    console.log('Stopping speech synthesis...');
+    
+    // Stop ElevenLabs audio
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    
+    // Stop browser speech synthesis
+    if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) {
       window.speechSynthesis.cancel();
     }
-    if (currentUtterance.current) {
-      currentUtterance.current = null;
-    }
-    speechQueue.current = [];
-    isProcessingQueue.current = false;
-    retryCount.current = 0;
+    
+    // Clear current utterance
+    currentUtteranceRef.current = null;
+    
+    // Update state
+    isSpeakingRef.current = false;
     setState(prev => ({ ...prev, isSpeaking: false }));
+    
+    console.log('Speech synthesis stopped');
   };
 
-   return {
+  return {
     speak: speakText,
     stop,
     isSpeaking: state.isSpeaking,
+    isInitialized: state.isInitialized,
   };
 };
 
@@ -552,4 +473,4 @@ export const SpeechSynthesis: React.FC<SpeechSynthesisProps> = ({
   return null;
 };
 
-export default SpeechSynthesis; 
+export default SpeechSynthesis;

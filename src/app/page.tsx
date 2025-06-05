@@ -6,6 +6,8 @@ import DailyVerse from '@/components/DailyVerse';
 import styles from './home.module.css';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ComingSoon from '@/components/ComingSoon';
+import Toast from '@/components/Toast';
+import { useUserName } from '@/contexts/UserNameContext';
 
 interface BibleVerse {
   abbrev: string;
@@ -25,13 +27,25 @@ function MainContent() {
   const [bibleData, setBibleData] = useState<BibleVerse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [showWelcomeToast, setShowWelcomeToast] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { userName } = useUserName();
 
   useEffect(() => {
     const view = searchParams.get('view');
     setShowCharacters(view === 'characters');
   }, [searchParams]);
+
+  useEffect(() => {
+    if (userName) {
+      const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+      if (!hasSeenWelcome) {
+        setShowWelcomeToast(true);
+        localStorage.setItem('hasSeenWelcome', 'true');
+      }
+    }
+  }, [userName]);
 
   useEffect(() => {
     const loadBibleData = async () => {
@@ -58,6 +72,12 @@ function MainContent() {
 
   return (
     <div className={styles.pageBackground}>
+      {showWelcomeToast && userName && (
+        <Toast
+          message={`¡Bienvenido ${userName}! Explora la Biblia, comparte tus sentimientos, habla con personajes bíblicos o dedica tiempo a la oración.`}
+          onClose={() => setShowWelcomeToast(false)}
+        />
+      )}
       <div className={styles.container}>
         <main className={styles.mainContent}>
           {!showCharacters ? (
