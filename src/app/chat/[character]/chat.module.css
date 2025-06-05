@@ -214,6 +214,7 @@
   box-sizing: border-box;
   max-width: 1000px;
   backdrop-filter: blur(10px);
+  align-items: center;
 }
 
 .messageInput {
@@ -225,6 +226,7 @@
   color: #fff;
   font-size: 0.9rem;
   transition: all 0.2s ease;
+  min-height: 48px;
 }
 
 .messageInput:focus {
@@ -248,10 +250,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 80px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
 }
 
 .sendButton:hover {
@@ -554,5 +558,95 @@
   .rateLimitButton {
     padding: 0.5rem 1.5rem;
     font-size: 0.9rem;
+  }
+}
+
+.micButton {
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.micButton:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.micButton.recording {
+  animation: pulse 1.5s infinite;
+  background: #dc2626 !important;
+}
+
+.recordingIndicator {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #fff;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.recordingWave {
+  width: 20px;
+  height: 20px;
+  background: #dc2626;
+  border-radius: 50%;
+  position: relative;
+}
+
+.recordingWave::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background: #dc2626;
+  border-radius: 50%;
+  animation: wave 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes wave {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
   }
 } 

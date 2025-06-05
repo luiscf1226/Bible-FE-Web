@@ -2,14 +2,14 @@
   width: 100%;
   min-height: 100vh;
   color: #fff;
-  padding: 0;
+  padding: 2rem 1rem;
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow-x: hidden;
   position: relative;
-  background-color: #343541;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   background-image: 
     radial-gradient(circle at 25% 25%, rgba(44, 82, 130, 0.15) 0%, transparent 50%),
     radial-gradient(circle at 75% 75%, rgba(44, 82, 130, 0.1) 0%, transparent 50%),
@@ -187,188 +187,125 @@
 }
 
 .content {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
-  width: 100%;
-  max-width: 1000px;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  margin: 0 auto;
-  overflow-x: hidden;
-  align-items: center;
+  gap: 2rem;
 }
 
 .quoteCard {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
   padding: 2rem;
-  border-radius: 1.5rem;
-  color: white;
   text-align: center;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  animation: slideUp 0.6s ease;
-  width: 100%;
-  max-width: 1000px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.125);
-  position: relative;
-  transition: transform 0.3s ease;
-}
-
-.quoteCard:hover {
-  transform: translateY(-4px) scale(1.01);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
 }
 
 .quoteText {
   font-size: 1.2rem;
-  line-height: 1.6;
   font-style: italic;
   margin-bottom: 1rem;
-  color: #fff;
-  font-weight: 300;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .quoteReference {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 500;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .form {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2rem;
-  border-radius: 1.5rem;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: slideUp 0.6s ease 0.4s backwards;
   width: 100%;
-  max-width: 1000px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.125);
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-
-.form:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 
-    0 35px 60px -12px rgba(0, 0, 0, 0.35),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+  gap: 1.5rem;
 }
 
 .inputGroup {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  box-sizing: border-box;
+  gap: 0.5rem;
 }
 
-.inputGroup label {
+.label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  color: #fff;
-  font-weight: 600;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .labelIcon {
   font-size: 1.2rem;
-  opacity: 0.8;
+}
+
+.textareaContainer {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .textarea {
   width: 100%;
-  padding: 1.25rem;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  border-radius: 1rem;
-  font-size: 1rem;
-  line-height: 1.6;
-  resize: vertical;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  box-sizing: border-box;
   min-height: 120px;
-  max-width: 100%;
-  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .textarea::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.textarea:focus {
-  outline: none;
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 
-    0 0 0 4px rgba(255, 255, 255, 0.1),
-    0 8px 25px 0 rgba(0, 0, 0, 0.15);
-  background: rgba(255, 255, 255, 0.12);
-  transform: scale(1.01);
+.speechRecognition {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 1;
 }
 
 .submitButton {
-  padding: 1rem 2rem;
+  width: 100%;
+  padding: 1rem;
   border: none;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, rgba(44, 82, 130, 0.9), rgba(43, 108, 176, 0.9));
-  color: #fff;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 1rem;
-  font-weight: 600;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
-  min-width: 140px;
-  margin: 0 auto;
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 25px 0 rgba(44, 82, 130, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.submitButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
-}
-
-.submitButton:hover::before {
-  left: 100%;
+  gap: 0.5rem;
 }
 
 .submitButton:hover {
-  background: linear-gradient(135deg, rgba(43, 108, 176, 0.95), rgba(49, 130, 206, 0.95));
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 15px 35px 0 rgba(44, 82, 130, 0.4);
-}
-
-.submitButton:active {
-  transform: translateY(-1px) scale(1.02);
+  background: linear-gradient(135deg, #357abd 0%, #2a5f94 100%);
+  transform: translateY(-1px);
 }
 
 .submitButton:disabled {
-  opacity: 0.6;
+  background: #666;
   cursor: not-allowed;
   transform: none;
 }
@@ -380,185 +317,97 @@
 .loadingButton {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .loadingSpinner {
-  width: 20px;
-  height: 20px;
+  width: 1rem;
+  height: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid #fff;
+  border-top-color: white;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .error {
   color: #ff6b6b;
-  margin-bottom: 1.5rem;
-  text-align: center;
-  background: rgba(255, 107, 107, 0.15);
-  padding: 1rem;
-  border-radius: 1rem;
-  border: 2px solid rgba(255, 107, 107, 0.3);
-  backdrop-filter: blur(10px);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
 
 .prayerCard {
-  background: linear-gradient(135deg, #2c5282, #2b6cb0);
-  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
   padding: 2rem;
-  color: white;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
-  animation: slideUp 0.6s ease;
-  width: 100%;
-  max-width: 1000px;
-  box-sizing: border-box;
-  margin: 0 auto;
-  position: relative;
-  overflow: hidden;
-}
-
-.prayerCard::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-}
-
-.prayerHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .prayerTitle {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.prayerTitle h2 {
-  font-size: 1.4rem;
-  font-weight: 700;
-  margin: 0;
-  color: #fff;
-}
-
-.prayerIcon {
-  font-size: 1.4rem;
-}
-
-.speakButton {
-  padding: 0.75rem;
-  border: none;
-  border-radius: 1rem;
-  background: rgba(26, 54, 93, 0.8);
-  color: #fff;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  height: 44px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.speakButton:hover {
-  background: rgba(43, 108, 176, 0.9);
-  transform: translateY(-2px) scale(1.1);
-}
-
-.speakButton:active {
-  transform: translateY(0) scale(1.05);
-}
-
-.prayerContent {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #4a90e2;
 }
 
 .prayerText {
   font-size: 1.1rem;
-  line-height: 1.7;
-  text-align: justify;
-  color: #fff;
-  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  white-space: pre-wrap;
 }
 
-.verseContainer {
-  background: rgba(26, 54, 93, 0.6);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  margin-top: 1rem;
-  position: relative;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.versesSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.verseIcon {
-  position: absolute;
-  top: -15px;
-  left: 20px;
-  background: linear-gradient(135deg, #2c5282, #2b6cb0);
-  padding: 0.5rem;
-  border-radius: 50%;
-  font-size: 1.1rem;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.versesTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #4a90e2;
 }
 
 .versesList {
-  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.verseText {
-  font-style: italic;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
-  padding-top: 0.75rem;
-  color: #fff;
-  font-weight: 300;
+.verseItem {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.explanationContainer {
-  background: rgba(26, 54, 93, 0.6);
-  padding: 1.5rem;
-  border-radius: 1rem;
-  position: relative;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.explanationSection {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.explanationIcon {
-  position: absolute;
-  top: -15px;
-  left: 20px;
-  background: linear-gradient(135deg, #2c5282, #2b6cb0);
-  padding: 0.5rem;
-  border-radius: 50%;
-  font-size: 1.1rem;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+.explanationTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #4a90e2;
 }
 
 .explanationText {
-  color: #fff;
-  line-height: 1.6;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
   font-size: 1rem;
-  font-weight: 300;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .prayerFooter {
@@ -650,12 +499,6 @@
   }
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 /* Enhanced responsive styles */
 @media (max-width: 1024px) {
   .container {
@@ -678,80 +521,48 @@
 
 @media (max-width: 768px) {
   .container {
-    padding: 0;
-    width: 100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .header {
-    padding: 1.5rem;
-    margin: 1rem auto;
-    border-radius: 1.25rem;
-    width: 90%;
-    max-width: 100%;
-  }
-
-  .content {
-    padding: 0;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .header,
-  .quoteCard,
-  .form,
-  .prayerCard,
-  .prayerResponse,
-  .verseContainer,
-  .explanationContainer {
-    width: 90%;
-    max-width: 100%;
-    margin: 1rem auto;
-    box-sizing: border-box;
-  }
-
-  .prayerContainer {
-    padding: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .prayerForm {
-    width: 90%;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
     padding: 1rem;
   }
 
-  .header h1 {
-    font-size: 1.75rem;
+  .content {
+    gap: 1.5rem;
   }
 
-  .subtitle {
-    font-size: 1rem;
-    padding: 0 1rem;
+  .textarea {
+    min-height: 100px;
+    font-size: 0.9rem;
   }
 
-  .headerIcon {
-    width: 64px;
-    height: 64px;
-  }
-
-  .form {
+  .prayerCard {
     padding: 1.5rem;
+  }
+
+  .prayerTitle {
+    font-size: 1.3rem;
+  }
+
+  .prayerText {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .textarea {
+    min-height: 80px;
+    padding: 0.75rem;
+  }
+
+  .submitButton {
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  .prayerCard {
+    padding: 1rem;
   }
 
   .quoteCard {
@@ -760,170 +571,6 @@
 
   .quoteText {
     font-size: 1.1rem;
-  }
-
-  .submitButton {
-    padding: 0.875rem 1.75rem;
-    font-size: 0.95rem;
-    min-width: 120px;
-    margin: 0 auto;
-  }
-
-  .prayerForm {
-    padding: 1rem;
-    flex-direction: column;
-  }
-
-  .prayerInput {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
-  .sendButton {
-    width: 100%;
-  }
-
-  .backButton {
-    padding: 0.4rem 0.875rem;
-    font-size: 0.8rem;
-    height: 32px;
-    min-width: 32px;
-    max-width: 100px;
-    margin-bottom: 0.875rem;
-    border-radius: 0.625rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0;
-    width: 100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .header {
-    padding: 1.25rem;
-    margin: 0.75rem auto;
-    border-radius: 1rem;
-    width: 90%;
-  }
-
-  .content {
-    padding: 0;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .header,
-  .quoteCard,
-  .form,
-  .prayerCard,
-  .prayerResponse,
-  .verseContainer,
-  .explanationContainer {
-    width: 90%;
-    max-width: 100%;
-    margin: 0.75rem auto;
-    box-sizing: border-box;
-  }
-
-  .prayerContainer {
-    padding: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-  }
-
-  .prayerForm {
-    width: 90%;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 0.75rem;
-  }
-
-  .header h1 {
-    font-size: 1.5rem;
-  }
-
-  .subtitle {
-    font-size: 0.9rem;
-    padding: 0 0.5rem;
-  }
-
-  .headerIcon {
-    width: 48px;
-    height: 48px;
-  }
-
-  .form {
-    padding: 1.25rem;
-  }
-
-  .quoteCard {
-    padding: 1.25rem;
-  }
-
-  .quoteText {
-    font-size: 1rem;
-  }
-
-  .submitButton {
-    padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    min-width: 100px;
-    margin: 0 auto;
-  }
-
-  .backButton {
-    padding: 0.35rem 0.75rem;
-    font-size: 0.75rem;
-    height: 28px;
-    min-width: 28px;
-    max-width: 90px;
-    margin-bottom: 0.75rem;
-    border-radius: 0.5rem;
-  }
-
-  .prayerCard {
-    padding: 1.25rem;
-  }
-
-  .prayerTitle h2 {
-    font-size: 1.2rem;
-  }
-
-  .prayerText {
-    font-size: 1rem;
-  }
-
-  .verseText {
-    font-size: 0.95rem;
-  }
-
-  .explanationText {
-    font-size: 0.95rem;
-  }
-
-  .prayerInput {
-    width: 100%;
-    margin: 0;
-  }
-
-  .sendButton {
-    width: auto;
-    margin: 0;
   }
 }
 

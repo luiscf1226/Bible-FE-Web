@@ -9,8 +9,50 @@ import ChatInput from '@/components/ChatInput';
 import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
+import SpeechRecognitionComponent from '@/components/SpeechRecognition';
 import styles from './chat.module.css';
 import { FaImage } from 'react-icons/fa';
+
+// Add type definitions for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
 
 const Toast = ({ message, onClose }: { message: string; onClose: () => void }) => {
   useEffect(() => {
@@ -63,6 +105,10 @@ export default function ChatPage() {
   const { showRateLimitAlert, rateLimitInfo, setShowRateLimitAlert, setRateLimitInfo } = useRateLimit();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
@@ -154,6 +200,14 @@ export default function ChatPage() {
 
   const selectedFeelingData = selectedFeeling ? feelings.find(f => f.text === selectedFeeling) : null;
 
+  const handleTranscriptChange = (transcript: string) => {
+    setTranscript(transcript);
+  };
+
+  const handleRecordingComplete = (finalTranscript: string) => {
+    setTranscript(finalTranscript);
+  };
+
   return (
     <div className={styles.container}>
       <RateLimitAlert
@@ -238,6 +292,15 @@ export default function ChatPage() {
           disabled={isLoading || !selectedFeeling}
           theme={selectedFeelingData?.theme}
           placeholder={selectedFeeling ? `Cuéntame sobre tu ${selectedFeeling.toLowerCase()}...` : "Selecciona un sentimiento para comenzar..."}
+          transcript={transcript}
+          speechRecognition={
+            <SpeechRecognitionComponent
+              onTranscriptChange={handleTranscriptChange}
+              onRecordingComplete={handleRecordingComplete}
+              theme={selectedFeelingData?.theme}
+              className={styles.speechRecognition}
+            />
+          }
         />
       </div>
     </div>

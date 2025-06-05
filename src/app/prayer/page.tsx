@@ -1,12 +1,54 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './prayer.module.css';
 import SpeechSynthesis from '@/components/SpeechSynthesis';
 import { generatePrayer } from '@/services/prayer';
 import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
+import SpeechRecognitionComponent from '@/components/SpeechRecognition';
+
+// Add type definitions for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
 
 export default function PrayerPage() {
   const [petition, setPetition] = useState('');
@@ -18,9 +60,20 @@ export default function PrayerPage() {
     bible_verses: string[];
     explanation: string;
   } | null>(null);
+  const [transcript, setTranscript] = useState('');
   const router = useRouter();
   const { userName } = useUserName();
   const { checkEndpointLimit } = useRateLimit();
+
+  const handleTranscriptChange = (newTranscript: string) => {
+    setTranscript(newTranscript);
+    setPetition(newTranscript);
+  };
+
+  const handleRecordingComplete = (finalTranscript: string) => {
+    setTranscript(finalTranscript);
+    setPetition(finalTranscript);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,19 +188,30 @@ export default function PrayerPage() {
               <span className={styles.labelIcon}>✍️</span>
               Tu Petición de Oración
             </label>
-            <textarea
-              className={styles.textarea}
-              value={petition}
-              onChange={(e) => setPetition(e.target.value)}
-              placeholder="Escribe tu petición aquí..."
-              required
-            />
+            <div className={styles.textareaContainer}>
+              <textarea
+                className={styles.textarea}
+                value={petition}
+                onChange={(e) => setPetition(e.target.value)}
+                placeholder="Escribe tu petición aquí..."
+                required
+              />
+              <SpeechRecognitionComponent
+                onTranscriptChange={handleTranscriptChange}
+                onRecordingComplete={handleRecordingComplete}
+                className={styles.speechRecognition}
+                theme={{
+                  accent: 'rgba(255, 255, 255, 0.2)',
+                  border: 'rgba(255, 255, 255, 0.1)'
+                }}
+              />
+            </div>
           </div>
           {error && <p className={styles.error}>{error}</p>}
           <button 
             type="submit" 
             className={styles.submitButton}
-            disabled={isLoading}
+            disabled={isLoading || !petition.trim()}
           >
             {isLoading ? (
               <div className={styles.loadingButton}>

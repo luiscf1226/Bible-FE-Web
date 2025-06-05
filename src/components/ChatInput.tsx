@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './ChatInput.module.css';
 
 interface ChatInputProps {
@@ -11,10 +11,26 @@ interface ChatInputProps {
     border: string;
   };
   placeholder?: string;
+  speechRecognition?: React.ReactNode;
+  transcript?: string;
 }
 
-export default function ChatInput({ onSendMessage, disabled = false, theme, placeholder = "Escribe tu mensaje..." }: ChatInputProps) {
+export default function ChatInput({ 
+  onSendMessage, 
+  disabled = false, 
+  theme, 
+  placeholder = "Escribe tu mensaje...",
+  speechRecognition,
+  transcript = ''
+}: ChatInputProps) {
   const [message, setMessage] = useState('');
+
+  // Update message when transcript changes
+  useEffect(() => {
+    if (transcript) {
+      setMessage(transcript);
+    }
+  }, [transcript]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,14 +42,17 @@ export default function ChatInput({ onSendMessage, disabled = false, theme, plac
 
   return (
     <form onSubmit={handleSubmit} className={styles.inputContainer}>
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder={placeholder}
-        className={styles.input}
-        disabled={disabled}
-      />
+      <div className={styles.inputWrapper}>
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder={placeholder}
+          className={styles.input}
+          disabled={disabled}
+        />
+        {speechRecognition}
+      </div>
       <button 
         type="submit" 
         className={styles.sendButton}

@@ -15,6 +15,13 @@
   border-top: 1px solid #2d3748;
 }
 
+.inputWrapper {
+  flex: 1;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .input {
   flex: 1;
   padding: 0.75rem 1rem;

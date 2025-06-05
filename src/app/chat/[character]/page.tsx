@@ -9,6 +9,7 @@ import { useRateLimit } from '@/contexts/RateLimitContext';
 import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
+import SpeechRecognitionComponent from '@/components/SpeechRecognition';
 import styles from './chat.module.css';
 
 const characterData = {
@@ -74,6 +75,48 @@ const characterData = {
   }
 };
 
+// Add type definitions for Web Speech API
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+  onend: () => void;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+}
+
+
 interface Message {
   role: 'user' | 'character';
   content: string;
@@ -93,6 +136,10 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isMuted, setIsMuted] = useState(false);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Set background color based on character theme
   useEffect(() => {
@@ -121,6 +168,73 @@ export default function ChatPage() {
       scrollToBottom();
     }
   }, [messages]);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if (typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'es-ES'; // Set to Spanish
+
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        const current = event.resultIndex;
+        const transcript = event.results[current][0].transcript;
+        setTranscript(transcript);
+      };
+
+      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
+        console.error('Speech recognition error:', event.error);
+        stopRecording();
+      };
+
+      recognitionRef.current.onend = () => {
+        stopRecording();
+      };
+    }
+
+    return () => {
+      stopRecording();
+    };
+  }, []);
+
+  const startRecording = () => {
+    if (!recognitionRef.current) return;
+    
+    setIsRecording(true);
+    setTranscript('');
+    recognitionRef.current.start();
+
+    // Set 1-minute timeout
+    recordingTimeoutRef.current = setTimeout(() => {
+      stopRecording();
+    }, 60000); // 1 minute
+  };
+
+  const stopRecording = () => {
+    if (!recognitionRef.current) return;
+    
+    recognitionRef.current.stop();
+    setIsRecording(false);
+    if (recordingTimeoutRef.current) {
+      clearTimeout(recordingTimeoutRef.current);
+      recordingTimeoutRef.current = null;
+    }
+    
+    // If there's a transcript, set it as the input message
+    if (transcript) {
+      setInputMessage(transcript);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -184,6 +298,14 @@ export default function ChatPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleTranscriptChange = (transcript: string) => {
+    setInputMessage(transcript);
+  };
+
+  const handleRecordingComplete = (finalTranscript: string) => {
+    setInputMessage(finalTranscript);
   };
 
   return (
@@ -282,6 +404,12 @@ export default function ChatPage() {
             placeholder="Escribe tu mensaje..."
             className={styles.messageInput}
           />
+          <SpeechRecognitionComponent
+            onTranscriptChange={handleTranscriptChange}
+            onRecordingComplete={handleRecordingComplete}
+            theme={data.theme}
+            className={styles.speechRecognition}
+          />
           <button 
             type="submit" 
             className={styles.sendButton}
@@ -294,6 +422,13 @@ export default function ChatPage() {
             Enviar
           </button>
         </form>
+        
+        {isRecording && (
+          <div className={styles.recordingIndicator}>
+            <div className={styles.recordingWave}></div>
+            <span>Grabando... {transcript}</span>
+          </div>
+        )}
       </div>
     </div>
   );
