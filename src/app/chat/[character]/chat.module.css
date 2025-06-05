@@ -429,16 +429,23 @@
 
   .messageForm {
     padding: 0.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .messageInput {
     padding: 0.5rem 0.6rem;
+    min-height: 40px;
+    width: calc(100% - 90px); /* Account for mic button width and margin */
   }
 
   .sendButton {
-    padding: 0.5rem 0.75rem;
-    min-width: 60px;
+    padding: 0.4rem 0.6rem;
+    min-width: 50px;
+    height: 36px;
     border-radius: 0.4rem;
+    font-size: 0.8rem;
+    margin-left: auto;
   }
 
   .backButton {
@@ -464,6 +471,29 @@
   .backButton .text,
   .sendButton .text {
     display: inline !important;
+  }
+
+  .micButton {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0.4rem;
+    border-radius: 0.4rem;
+  }
+
+  .speechRecognition {
+    margin-right: 0.5rem;
+  }
+
+  .speechRecognition .micButton {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .speechRecognition .micIcon {
+    width: 18px;
+    height: 18px;
   }
 }
 
