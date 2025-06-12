@@ -13,6 +13,7 @@ interface BibleVerse {
   abbrev: string;
   chapters: string[][];
 }
+//TODO: IMPLEMENT BIBLE IN ENGLISH ASWELL 
 
 // Map of abbreviations to full book names with proper encoding
 const bookNames: { [key: string]: string } = {
