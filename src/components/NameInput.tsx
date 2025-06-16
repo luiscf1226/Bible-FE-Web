@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import styles from './NameInput.module.css';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface NameInputProps {
   onNameSubmit: (name: string) => void;
@@ -9,6 +10,7 @@ interface NameInputProps {
 export default function NameInput({ onNameSubmit }: NameInputProps) {
   const [name, setName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useTranslation();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,9 +28,9 @@ export default function NameInput({ onNameSubmit }: NameInputProps) {
     <div className={styles.nameInputOverlay}>
       <div className={styles.nameInputContainer}>
         <div className={styles.nameInputContent}>
-          <h2 className={styles.title}>Bienvenido a SoulVerse</h2>
+          <h2 className={styles.title}>{t('nameInput.title')}</h2>
           <p className={styles.subtitle}>
-            Para comenzar, por favor ingresa tu nombre
+            {t('nameInput.subtitle')}
           </p>
           <form onSubmit={handleSubmit} className={styles.form}>
             <div className={styles.inputWrapper}>
@@ -36,7 +38,7 @@ export default function NameInput({ onNameSubmit }: NameInputProps) {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Tu nombre"
+                placeholder={t('nameInput.placeholder')}
                 className={styles.input}
                 required
                 minLength={2}
@@ -49,7 +51,7 @@ export default function NameInput({ onNameSubmit }: NameInputProps) {
               className={`${styles.submitButton} ${isSubmitting ? styles.submitting : ''}`}
               disabled={isSubmitting || !name.trim()}
             >
-              {isSubmitting ? 'Guardando...' : 'Comenzar'}
+              {isSubmitting ? t('nameInput.saving') : t('nameInput.submit')}
             </button>
           </form>
         </div>
