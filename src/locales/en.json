@@ -210,5 +210,12 @@
   },
   "biblicalCharactersGrid": {
     "title": "Choose your biblical character"
+  },
+  "nameInput": {
+    "title": "Welcome to SoulVerse",
+    "subtitle": "To get started, please enter your name",
+    "placeholder": "Your name",
+    "submit": "Start",
+    "saving": "Saving..."
   }
 } 
