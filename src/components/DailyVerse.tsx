@@ -5,6 +5,7 @@ import { useSpeechSynthesis } from './SpeechSynthesis';
 import MuteButton from './MuteButton';
 import { usePathname } from 'next/navigation';
 import Toast from '@/components/Toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface DailyVerseProps {
   bibleData: Array<{
@@ -20,13 +21,29 @@ interface Verse {
   text: string;
 }
 
-const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
+const DailyVerse: React.FC = () => {
+  const [bibleData, setBibleData] = useState<Array<{ abbrev: string; chapters: string[][] }>>([]);
   const [dailyVerse, setDailyVerse] = useState<Verse | null>(null);
   const [loading, setLoading] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
   const pathname = usePathname();
   const previousPathnameRef = useRef(pathname);
+  const { t, language } = useTranslation();
+
+  // Load Bible data based on language
+  useEffect(() => {
+    const loadBibleData = async () => {
+      setLoading(true);
+      let file = '/assets/es_rvr.json';
+      if (language === 'en') file = '/assets/en_bbe.json';
+      const response = await fetch(file);
+      const data = await response.json();
+      setBibleData(data);
+      setLoading(false);
+    };
+    loadBibleData();
+  }, [language]);
 
   // Handle navigation events - only stop when pathname actually changes
   useEffect(() => {
@@ -92,18 +109,21 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
     };
   };
 
+  // Use language-specific localStorage keys for daily verse
   useEffect(() => {
     const loadDailyVerse = () => {
-      const storedVerse = localStorage.getItem('dailyVerse');
-      const storedDate = localStorage.getItem('dailyVerseDate');
+      const verseKey = `dailyVerse_${language}`;
+      const dateKey = `dailyVerseDate_${language}`;
+      const storedVerse = localStorage.getItem(verseKey);
+      const storedDate = localStorage.getItem(dateKey);
       const today = new Date().toDateString();
 
       if (storedVerse && storedDate === today) {
         setDailyVerse(JSON.parse(storedVerse));
       } else {
         const newVerse = getRandomVerse();
-        localStorage.setItem('dailyVerse', JSON.stringify(newVerse));
-        localStorage.setItem('dailyVerseDate', today);
+        localStorage.setItem(verseKey, JSON.stringify(newVerse));
+        localStorage.setItem(dateKey, today);
         setDailyVerse(newVerse);
       }
       setLoading(false);
@@ -113,7 +133,7 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
     if (bibleData.length > 0) {
       loadDailyVerse();
     }
-  }, [bibleData]);
+  }, [bibleData, language]);
 
   if (loading) {
     return (
@@ -131,7 +151,7 @@ const DailyVerse: React.FC<DailyVerseProps> = ({ bibleData }) => {
     <div className={styles.dailyVerseContainer}>
       <div className={styles.dailyVerseCard}>
         <div className={styles.header}>
-          <h2>Versículo del Día</h2>
+          <h2>{t('verseOfTheDay')}</h2>
           <MuteButton 
             isSpeaking={isSpeaking}
             onToggle={handleToggleSpeech}

@@ -1,6 +1,7 @@
 import BiblicalCharacterCard from './BiblicalCharacterCard';
 import styles from './BiblicalCharactersGrid.module.css';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 type CharacterTheme = 'jesus' | 'moises' | 'david' | 'maria' | 'pablo' | 'abraham';
 
@@ -11,56 +12,57 @@ interface BiblicalCharacter {
   theme: CharacterTheme;
 }
 
-const biblicalCharacters: BiblicalCharacter[] = [
+export default function BiblicalCharactersGrid() {
+  const router = useRouter();
+  const { t } = useTranslation();
+
+  const biblicalCharacters = [
   {
-    name: 'Jesús',
-    description: 'El Hijo de Dios, Salvador y Maestro que enseñó el amor y la compasión.',
+      name: t('chatCharacter.characters.jesus.name'),
+      description: t('chatCharacter.characters.jesus.description'),
     imageUrl: '/images/characters/jesus.avif',
-    theme: 'jesus'
+      theme: 'jesus' as CharacterTheme
   },
   {
-    name: 'Moisés',
-    description: 'Líder que liberó al pueblo de Israel y recibió los Diez Mandamientos.',
+      name: t('chatCharacter.characters.moises.name'),
+      description: t('chatCharacter.characters.moises.description'),
     imageUrl: '/images/characters/moises.avif',
-    theme: 'moises'
+      theme: 'moises' as CharacterTheme
   },
   {
-    name: 'David',
-    description: 'Rey de Israel, poeta y guerrero que escribió los Salmos.',
+      name: t('chatCharacter.characters.david.name'),
+      description: t('chatCharacter.characters.david.description'),
     imageUrl: '/images/characters/david.jpg',
-    theme: 'david'
+      theme: 'david' as CharacterTheme
   },
   {
-    name: 'María',
-    description: 'Madre de Jesús, ejemplo de fe y humildad.',
+      name: t('chatCharacter.characters.maria.name'),
+      description: t('chatCharacter.characters.maria.description'),
     imageUrl: '/images/characters/maria.jpg',
-    theme: 'maria'
+      theme: 'maria' as CharacterTheme
   },
   {
-    name: 'Pablo',
-    description: 'Apóstol que difundió el mensaje de Cristo por el mundo antiguo.',
+      name: t('chatCharacter.characters.pablo.name'),
+      description: t('chatCharacter.characters.pablo.description'),
     imageUrl: '/images/characters/pablo.avif',
-    theme: 'pablo'
+      theme: 'pablo' as CharacterTheme
   },
   {
-    name: 'Abraham',
-    description: 'Padre de la fe, fundador del pueblo de Dios.',
+      name: t('chatCharacter.characters.abraham.name'),
+      description: t('chatCharacter.characters.abraham.description'),
     imageUrl: '/images/characters/abraham.jpg',
-    theme: 'abraham'
+      theme: 'abraham' as CharacterTheme
   }
 ];
 
-export default function BiblicalCharactersGrid() {
-  const router = useRouter();
-
   const handleChat = (characterName: string) => {
-    const characterId = characterName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const characterId = characterName.toLowerCase().normalize("NFD").replace(/[^a-z]/g, "");
     router.push(`/chat/${characterId}`);
   };
 
   return (
     <div className={styles.gridContainer}>
-      <h2 className={styles.title}>Escoge tu personal bíblico</h2>
+      <h2 className={styles.title}>{t('biblicalCharactersGrid.title')}</h2>
       <div className={styles.grid}>
         {biblicalCharacters.map((character) => (
           <BiblicalCharacterCard

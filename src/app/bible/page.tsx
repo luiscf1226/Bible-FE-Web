@@ -8,6 +8,7 @@ import RateLimitAlert from '@/components/RateLimitAlert';
 import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
 import Toast from '@/components/Toast';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface BibleVerse {
   abbrev: string;
@@ -143,13 +144,19 @@ export default function BibleReader() {
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
   const [showToast, setShowToast] = useState(false);
   const [showWelcomeToast, setShowWelcomeToast] = useState(true);
+  const { t, language } = useTranslation();
 
+  // Load Bible data based on language
   useEffect(() => {
     const loadBibleData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch('/assets/es_rvr.json');
+        let file = '/assets/es_rvr.json';
+        if (language === 'en') file = '/assets/en_bbe.json';
+        // Add cache-busting query string
+        const cacheBuster = `?v=${Date.now()}`;
+        const response = await fetch(file + cacheBuster);
         if (!response.ok) {
           throw new Error('Failed to load Bible data');
         }
@@ -158,9 +165,16 @@ export default function BibleReader() {
           throw new Error('Invalid Bible data format');
         }
         setBibleData(data);
-        // Log all unique abbreviations for mapping validation
-        const abbrevs = data.map((book: any) => book.abbrev);
-        //console.log('Bible abbreviations:', abbrevs);
+        // Restore last selected book/chapter/verse for this language
+        const bookKey = `bible_selectedBook_${language}`;
+        const chapterKey = `bible_selectedChapter_${language}`;
+        const versesKey = `bible_selectedVerses_${language}`;
+        const storedBook = localStorage.getItem(bookKey);
+        const storedChapter = localStorage.getItem(chapterKey);
+        const storedVerses = localStorage.getItem(versesKey);
+        if (storedBook) setSelectedBook(storedBook);
+        if (storedChapter) setSelectedChapter(Number(storedChapter));
+        if (storedVerses) setSelectedVerses(JSON.parse(storedVerses));
       } catch (error) {
         console.error('Error loading Bible data:', error);
         setError('Error loading Bible data. Please try again later.');
@@ -168,9 +182,16 @@ export default function BibleReader() {
         setLoading(false);
       }
     };
-
     loadBibleData();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
+
+  // Persist selection per language
+  useEffect(() => {
+    localStorage.setItem(`bible_selectedBook_${language}`, selectedBook);
+    localStorage.setItem(`bible_selectedChapter_${language}`, String(selectedChapter));
+    localStorage.setItem(`bible_selectedVerses_${language}`, JSON.stringify(selectedVerses));
+  }, [selectedBook, selectedChapter, selectedVerses, language]);
 
   const currentBook = bibleData.find(book => book.abbrev === selectedBook);
   const currentChapter = currentBook?.chapters[selectedChapter - 1] || [];
@@ -359,7 +380,7 @@ export default function BibleReader() {
       // Fallback for browsers that don't support Web Share API
       try {
         await navigator.clipboard.writeText(shareText);
-        alert('Texto copiado al portapapeles');
+        alert(t('bible.copied'));
       } catch (error) {
         console.error('Error copying to clipboard:', error);
       }
@@ -370,7 +391,7 @@ export default function BibleReader() {
     return (
       <div className={styles.loadingContainer}>
         <div className={styles.loadingSpinner}></div>
-        <p>Cargando la Biblia...</p>
+        <p>{t('bible.loading')}</p>
       </div>
     );
   }
@@ -387,14 +408,14 @@ export default function BibleReader() {
     <div className={styles.container}>
       {showWelcomeToast && (
         <Toast
-          message="Selecciona los versículos que quieras entender mejor..."
+          message={t('bible.welcomeToast')}
           onClose={() => setShowWelcomeToast(false)}
         />
       )}
       <div className={styles.content}>
         <div className={styles.controls}>
           <div className={styles.selectGroup}>
-            <label htmlFor="bookSelect">Libro:</label>
+            <label htmlFor="bookSelect">{t('bible.book')}:</label>
             <select 
               id="bookSelect"
               value={selectedBook} 
@@ -411,7 +432,7 @@ export default function BibleReader() {
           </div>
           
           <div className={styles.selectGroup}>
-            <label htmlFor="chapterSelect">Capítulo:</label>
+            <label htmlFor="chapterSelect">{t('bible.chapter')}:</label>
             <select 
               id="chapterSelect"
               value={selectedChapter} 
@@ -431,7 +452,7 @@ export default function BibleReader() {
             <button 
               className={styles.toolButton}
               onClick={() => setShowSearch(!showSearch)}
-              title="Buscar"
+              title={t('bible.search')}
               disabled={loading || error !== null}
             >
               🔍
@@ -439,7 +460,7 @@ export default function BibleReader() {
             <button 
               className={styles.toolButton}
               onClick={() => handleZoom(2)}
-              title="Aumentar texto"
+              title={t('bible.increaseText')}
               disabled={loading || error !== null}
             >
               A+
@@ -447,7 +468,7 @@ export default function BibleReader() {
             <button 
               className={styles.toolButton}
               onClick={() => handleZoom(-2)}
-              title="Reducir texto"
+              title={t('bible.decreaseText')}
               disabled={loading || error !== null}
             >
               A-
@@ -479,11 +500,10 @@ export default function BibleReader() {
         {selectedVerses.length > 0 && !showExplanation && (
           <div className={styles.selectionInfo}>
             <span>
-              {selectedVerses.length} versículo{selectedVerses.length !== 1 ? 's' : ''} seleccionado{selectedVerses.length !== 1 ? 's' : ''}
-              {selectedVerses.length > 0 && ` (${selectedVerses.join(', ')})`}
+              {t('bible.versesSelected', { count: selectedVerses.length })}
             </span>
             <button onClick={() => setShowExplanation(true)}>
-              Escribir explicación
+              {t('bible.writeExplanation')}
             </button>
           </div>
         )}
@@ -500,7 +520,7 @@ export default function BibleReader() {
             {!response ? (
               <>
                 <div className={styles.selectedVersesInfo}>
-                  {selectedVerses.length} versículo{selectedVerses.length !== 1 ? 's' : ''} seleccionado{selectedVerses.length !== 1 ? 's' : ''}
+                  {t('bible.versesSelected', { count: selectedVerses.length })}
                 </div>
                 <div className={styles.explanationActions}>
                   <button 
@@ -511,7 +531,7 @@ export default function BibleReader() {
                     {explanationLoading ? (
                       <div className={styles.loadingSpinner}></div>
                     ) : (
-                      'Obtener Explicación'
+                      t('bible.getExplanation')
                     )}
                   </button>
                   <button 
@@ -525,7 +545,7 @@ export default function BibleReader() {
                     }}
                     disabled={explanationLoading}
                   >
-                    Cancelar
+                    {t('bible.cancel')}
                   </button>
                 </div>
               </>
@@ -537,7 +557,7 @@ export default function BibleReader() {
                     className={styles.explanationButton}
                     onClick={handleShare}
                   >
-                    Compartir
+                    {t('bible.share')}
                   </button>
                   <button 
                     className={styles.explanationButton}
@@ -549,7 +569,7 @@ export default function BibleReader() {
                       setPosition({ x: 0, y: 0 });
                     }}
                   >
-                    Cerrar
+                    {t('bible.close')}
                   </button>
                 </div>
                 <div className={styles.speakButtonContainer}>
@@ -578,7 +598,7 @@ export default function BibleReader() {
               type="text"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
-              placeholder="Buscar en la Biblia..."
+              placeholder={t('bible.searchPlaceholder')}
               className={styles.searchInput}
               autoFocus
             />

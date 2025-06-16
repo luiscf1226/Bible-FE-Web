@@ -12,6 +12,7 @@ import MuteButton from '@/components/MuteButton';
 import SpeechRecognitionComponent from '@/components/SpeechRecognition';
 import styles from './chat.module.css';
 import { FaImage } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Add type definitions for Web Speech API
 interface SpeechRecognitionEvent extends Event {
@@ -109,6 +110,7 @@ export default function ChatPage() {
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const recordingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const { t } = useTranslation();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ 
@@ -130,12 +132,12 @@ export default function ChatPage() {
 
   const handleSendMessage = async (message: string) => {
     if (!selectedFeeling) {
-      setError('Por favor, selecciona un sentimiento antes de enviar un mensaje');
+      setError(t('chat.errorNoFeeling'));
       return;
     }
 
     if (!userName) {
-      setError('Por favor, ingresa tu nombre para continuar');
+      setError(t('chat.errorNoName'));
       return;
     }
 
@@ -191,7 +193,7 @@ export default function ChatPage() {
         });
         setShowRateLimitAlert(true);
       } else {
-        setError('Error al enviar el mensaje. Por favor, intenta de nuevo.');
+        setError(t('chat.errorSend'));
       }
     } finally {
       setIsLoading(false);
@@ -220,26 +222,26 @@ export default function ChatPage() {
       />
       {showToast && selectedFeeling && (
         <Toast
-          message={`Escribe sobre tu ${selectedFeeling.toLowerCase()} en el chat por de bajo...`}
+          message={t('chat.toastWriteAboutFeeling', { feeling: t(`chat.feelings.${selectedFeeling}`) })}
           onClose={() => setShowToast(false)}
         />
       )}
       <div className={styles.chatContainer}>
         <div className={styles.header}>
           <div className={styles.headerControls}>
-            <h1>¿Cómo te sientes hoy?</h1>
+            <h1>{t('chat.howDoYouFeelToday')}</h1>
             <div className={styles.controls}>
               <button
                 className={`${styles.imageToggle} ${includeSvg ? styles.active : ''}`}
                 onClick={() => setIncludeSvg(!includeSvg)}
-                title={includeSvg ? "Desactivar imágenes generadas por IA" : "Activar imágenes generadas por IA"}
+                title={includeSvg ? t('chat.deactivateAIImages') : t('chat.activateAIImages')}
                 style={selectedFeelingData ? {
                   background: selectedFeelingData.theme.accent,
                   borderColor: selectedFeelingData.theme.border
                 } : undefined}
               >
                 <FaImage />
-                <span>{includeSvg ? "Imágenes IA activadas" : "Activar imágenes IA"}</span>
+                <span>{includeSvg ? t('chat.aiImagesActivated') : t('chat.activateAIImagesShort')}</span>
               </button>
               <MuteButton 
                 isSpeaking={isSpeaking}
@@ -264,7 +266,7 @@ export default function ChatPage() {
                 } : undefined}
               >
                 <span className={styles.emoji}>{feeling.emoji}</span>
-                <span className={styles.feelingText}>{feeling.text}</span>
+                <span className={styles.feelingText}>{t(`chat.feelings.${feeling.text}`)}</span>
               </button>
             ))}
           </div>
@@ -291,7 +293,7 @@ export default function ChatPage() {
           onSendMessage={handleSendMessage} 
           disabled={isLoading || !selectedFeeling}
           theme={selectedFeelingData?.theme}
-          placeholder={selectedFeeling ? `Cuéntame sobre tu ${selectedFeeling.toLowerCase()}...` : "Selecciona un sentimiento para comenzar..."}
+          placeholder={selectedFeeling ? t('chat.tellMeAboutFeeling', { feeling: t(`chat.feelings.${selectedFeeling}`) }) : t('chat.selectFeelingToStart')}
           transcript={transcript}
           speechRecognition={
             <SpeechRecognitionComponent

@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import ComingSoon from '@/components/ComingSoon';
 import Toast from '@/components/Toast';
 import { useUserName } from '@/contexts/UserNameContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface BibleVerse {
   abbrev: string;
@@ -31,6 +33,8 @@ function MainContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { userName } = useUserName();
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const view = searchParams.get('view');
@@ -74,7 +78,7 @@ function MainContent() {
     <div className={styles.pageBackground}>
       {showWelcomeToast && userName && (
         <Toast
-          message={`¡Bienvenido ${userName}! Explora la Biblia, comparte tus sentimientos, habla con personajes bíblicos o dedica tiempo a la oración.`}
+          message={t('welcome', { userName })}
           onClose={() => setShowWelcomeToast(false)}
         />
       )}
@@ -83,16 +87,14 @@ function MainContent() {
           {!showCharacters ? (
             <>
               <div className={styles.heroSection}>
-                <h2 className={styles.mainHeading}>Bienvenido a SoulVerse</h2>
-                <p className={styles.subheading}>
-                  Un espacio para conectar con la Palabra de Dios, explorar tus emociones y recibir guía espiritual.
-                </p>
+                <h2 className={styles.mainHeading}>{t('mainHeading')}</h2>
+                <p className={styles.subheading}>{t('subheading')}</p>
               </div>
 
               {loading ? (
                 <LoadingSpinner />
               ) : bibleData.length > 0 ? (
-                <DailyVerse bibleData={bibleData} />
+                <DailyVerse />
               ) : null}
 
               {showComingSoon ? (
@@ -104,9 +106,9 @@ function MainContent() {
                   <SoulCard
                     headerColor=""
                     icon={<img src="/read.png" alt="Bible Icon" className="w-full h-full object-contain" />}
-                    title="Leer la Biblia"
+                    title={t('readBible')}
                     titleColor="var(--color-text-on-dark)"
-                    description="Explora las escrituras, selecciona versículos, busca referencias, selecciona un versículo y obtén una explicación detallada de cada pasaje."
+                    description={t('readBibleDesc')}
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -117,9 +119,9 @@ function MainContent() {
                   <SoulCard
                     headerColor=""
                     icon={<img src="/feelings.png" alt="Feelings Icon" className="w-full h-full object-contain" />}
-                    title="¿Cómo Te Sientes?"
+                    title={t('howDoYouFeel')}
                     titleColor="var(--color-text-on-dark)"
-                    description="Escoje una emoción y recibe un versículo, reflexiones y oraciones personalizadas."
+                    description={t('howDoYouFeelDesc')}
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -130,9 +132,9 @@ function MainContent() {
                   <SoulCard
                     headerColor=""
                     icon={<img src="/character.png" alt="Character Icon" className="w-full h-full object-contain" />}
-                    title="Habla con un Personaje Bíblico"
+                    title={t('talkToCharacter')}
                     titleColor="var(--color-text-on-dark)"
-                    description="Conversa con figuras bíblicas y recibe sabiduría desde su perspectiva espiritual."
+                    description={t('talkToCharacterDesc')}
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -146,9 +148,9 @@ function MainContent() {
                   <SoulCard
                     headerColor=""
                     icon={<img src="/praying.png" alt="Prayer Icon" className="w-full h-full object-contain" />}
-                    title="Tiempo de oración"
+                    title={t('prayerTime')}
                     titleColor="var(--color-text-on-dark)"
-                    description="Aquí puedes generar una oración personalizada según cómo te sientas hoy y presentar una petición especial."
+                    description={t('prayerTimeDesc')}
                     buttonText=""
                     buttonColor=""
                     buttonHoverColor=""
@@ -159,7 +161,7 @@ function MainContent() {
                 </div>
               )}
               <div className={styles.scriptureQuote}>
-                <p>"Porque la palabra de Dios es viva y eficaz."<br />Hebreos 4:12</p>
+                <p>{t('scriptureQuote')}</p>
               </div>
             </>
           ) : (
@@ -171,7 +173,7 @@ function MainContent() {
                   router.push('/');
                 }}
               >
-                ← Volver
+                {t('back')}
               </button>
               <BiblicalCharactersGrid />
             </div>

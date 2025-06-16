@@ -8,6 +8,7 @@ import { generatePrayer } from '@/services/prayer';
 import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
 import SpeechRecognitionComponent from '@/components/SpeechRecognition';
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Add type definitions for Web Speech API
 interface SpeechRecognitionEvent extends Event {
@@ -64,6 +65,7 @@ export default function PrayerPage() {
   const router = useRouter();
   const { userName } = useUserName();
   const { checkEndpointLimit } = useRateLimit();
+  const { t } = useTranslation();
 
   const handleTranscriptChange = (newTranscript: string) => {
     setTranscript(newTranscript);
@@ -81,7 +83,7 @@ export default function PrayerPage() {
     setIsLoading(true);
 
     if (!userName) {
-      setError('Por favor, establece tu nombre antes de generar una oración');
+      setError(t('prayer.errorNoName'));
       setIsLoading(false);
       return;
     }
@@ -89,7 +91,7 @@ export default function PrayerPage() {
     try {
       const { isLimited, remainingTime } = checkEndpointLimit('prayer');
       if (isLimited) {
-        setError(`Límite de solicitudes alcanzado. Por favor, intenta de nuevo en ${remainingTime}`);
+        setError(t('prayer.errorLimit', { remainingTime: remainingTime ?? '' }));
         setIsLoading(false);
         return;
       }
@@ -97,7 +99,7 @@ export default function PrayerPage() {
       const response = await generatePrayer(petition, userName);
       setGeneratedPrayer(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al generar la oración');
+      setError(err instanceof Error ? err.message : t('prayer.errorGeneric'));
     } finally {
       setIsLoading(false);
     }
@@ -120,8 +122,8 @@ export default function PrayerPage() {
     if (!generatedPrayer) return;
 
     const shareData = {
-      title: 'Mi Oración Personalizada',
-      text: `${generatedPrayer.prayer}\n\nVersículos Bíblicos:\n${generatedPrayer.bible_verses.join('\n')}\n\nExplicación:\n${generatedPrayer.explanation}`,
+      title: t('prayer.shareTitle'),
+      text: `${generatedPrayer.prayer}\n\n${t('prayer.bibleVerses')}\n${generatedPrayer.bible_verses.join('\n')}\n\n${t('prayer.explanation')}\n${generatedPrayer.explanation}`,
       url: window.location.href
     };
 
@@ -131,17 +133,17 @@ export default function PrayerPage() {
       } else {
         // Fallback for browsers that don't support the Web Share API
         await navigator.clipboard.writeText(shareData.text);
-        showToast('Oración copiada al portapapeles', 'success');
+        showToast(t('prayer.shareCopied'), 'success');
       }
     } catch (error) {
       console.error('Error sharing:', error);
       // Fallback to clipboard if sharing fails
       try {
         await navigator.clipboard.writeText(shareData.text);
-        showToast('Oración copiada al portapapeles', 'success');
+        showToast(t('prayer.shareCopied'), 'success');
       } catch (clipboardError) {
         console.error('Error copying to clipboard:', clipboardError);
-        showToast('No se pudo compartir la oración', 'error');
+        showToast(t('prayer.shareFailed'), 'error');
       }
     }
   };
@@ -161,15 +163,15 @@ export default function PrayerPage() {
           className={styles.backButton}
           onClick={() => router.push('/')}
         >
-          ← Volver
+          {t('prayer.back')}
         </button>
         <div className={styles.headerContent}>
           <div className={styles.headerIcon}>
             <img src="/praying.png" alt="Icono de oración" />
           </div>
-          <h1>Tiempo de Oración</h1>
+          <h1>{t('prayer.title')}</h1>
           <p className={styles.subtitle}>
-            Comparte tu petición y recibe una oración personalizada junto con versículos bíblicos que te inspiren.
+            {t('prayer.subtitle')}
           </p>
         </div>
       </div>
@@ -177,23 +179,23 @@ export default function PrayerPage() {
       <div className={styles.content}>
         <div className={styles.quoteCard}>
           <p className={styles.quoteText}>
-            "Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos."
+            {t('prayer.quote')}
           </p>
-          <p className={styles.quoteReference}>- Mateo 18:20</p>
+          <p className={styles.quoteReference}>{t('prayer.quoteReference')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputGroup}>
             <label>
               <span className={styles.labelIcon}>✍️</span>
-              Tu Petición de Oración
+              {t('prayer.inputLabel')}
             </label>
             <div className={styles.textareaContainer}>
               <textarea
                 className={styles.textarea}
                 value={petition}
                 onChange={(e) => setPetition(e.target.value)}
-                placeholder="Escribe tu petición aquí..."
+                placeholder={t('prayer.inputPlaceholder')}
                 required
               />
               <SpeechRecognitionComponent
@@ -216,12 +218,12 @@ export default function PrayerPage() {
             {isLoading ? (
               <div className={styles.loadingButton}>
                 <div className={styles.loadingSpinner} />
-                Generando Oración...
+                {t('prayer.generating')}
               </div>
             ) : (
               <>
                 <span className={styles.buttonIcon}>🙏</span>
-                Generar Oración
+                {t('prayer.generateButton')}
               </>
             )}
           </button>
@@ -232,12 +234,12 @@ export default function PrayerPage() {
             <div className={styles.prayerHeader}>
               <div className={styles.prayerTitle}>
                 <span className={styles.prayerIcon}>✨</span>
-                <h2>Tu Oración Personalizada</h2>
+                <h2>{t('prayer.personalizedTitle')}</h2>
               </div>
               <button 
                 className={styles.speakButton}
                 onClick={() => handleSpeak(generatedPrayer.prayer)}
-                title="Escuchar oración"
+                title={t('prayer.listen')}
               >
                 🔊
               </button>
@@ -261,10 +263,10 @@ export default function PrayerPage() {
               <button 
                 className={styles.shareButton}
                 onClick={handleShare}
-                title="Compartir oración"
+                title={t('prayer.share')}
               >
                 <span className={styles.shareIcon}>📤</span>
-                Compartir Oración
+                {t('prayer.share')}
               </button>
             </div>
           </div>

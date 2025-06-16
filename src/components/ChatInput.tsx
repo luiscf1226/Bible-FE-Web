@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import styles from './ChatInput.module.css';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -24,6 +25,7 @@ export default function ChatInput({
   transcript = ''
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
+  const { t } = useTranslation();
 
   // Update message when transcript changes
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function ChatInput({
           borderColor: theme.border
         } : undefined}
       >
-        Enviar
+        {t('chatInput.send')}
       </button>
     </form>
   );

@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { RateLimitProvider } from "@/contexts/RateLimitContext";
 import { UserNameProvider } from "@/contexts/UserNameContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,13 +22,15 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
-        <UserNameProvider>
-          <RateLimitProvider>
-            <Navbar />
-            {children}
-            <Footer />
-          </RateLimitProvider>
-        </UserNameProvider>
+        <LanguageProvider>
+          <UserNameProvider>
+            <RateLimitProvider>
+              <Navbar />
+              {children}
+              <Footer />
+            </RateLimitProvider>
+          </UserNameProvider>
+        </LanguageProvider>
       </body>
     </html>
   );

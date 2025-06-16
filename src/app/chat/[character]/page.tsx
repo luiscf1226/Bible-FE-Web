@@ -11,69 +11,7 @@ import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
 import MuteButton from '@/components/MuteButton';
 import SpeechRecognitionComponent from '@/components/SpeechRecognition';
 import styles from './chat.module.css';
-
-const characterData = {
-  jesus: {
-    name: 'Jesús',
-    description: 'El Hijo de Dios, Salvador y Maestro que enseñó el amor y la compasión.',
-    imageUrl: '/images/characters/jesus.avif',
-    theme: {
-      accent: 'rgba(44, 82, 130, 0.8)',
-      accentHover: 'rgba(44, 82, 130, 0.9)',
-      border: 'rgba(44, 82, 130, 0.3)'
-    }
-  },
-  moises: {
-    name: 'Moisés',
-    description: 'Líder que liberó al pueblo de Israel y recibió los Diez Mandamientos.',
-    imageUrl: '/images/characters/moises.avif',
-    theme: {
-      accent: 'rgba(44, 122, 123, 0.8)',
-      accentHover: 'rgba(44, 122, 123, 0.9)',
-      border: 'rgba(44, 122, 123, 0.3)'
-    }
-  },
-  david: {
-    name: 'David',
-    description: 'Rey de Israel, poeta y guerrero que escribió los Salmos.',
-    imageUrl: '/images/characters/david.jpg',
-    theme: {
-      accent: 'rgba(85, 60, 154, 0.8)',
-      accentHover: 'rgba(85, 60, 154, 0.9)',
-      border: 'rgba(85, 60, 154, 0.3)'
-    }
-  },
-  maria: {
-    name: 'María',
-    description: 'Madre de Jesús, ejemplo de fe y humildad.',
-    imageUrl: '/images/characters/maria.jpg',
-    theme: {
-      accent: 'rgba(155, 44, 44, 0.8)',
-      accentHover: 'rgba(155, 44, 44, 0.9)',
-      border: 'rgba(155, 44, 44, 0.3)'
-    }
-  },
-  pablo: {
-    name: 'Pablo',
-    description: 'Apóstol que difundió el mensaje de Cristo por el mundo antiguo.',
-    imageUrl: '/images/characters/pablo.avif',
-    theme: {
-      accent: 'rgba(45, 55, 72, 0.8)',
-      accentHover: 'rgba(45, 55, 72, 0.9)',
-      border: 'rgba(45, 55, 72, 0.3)'
-    }
-  },
-  abraham: {
-    name: 'Abraham',
-    description: 'Padre de la fe, fundador del pueblo de Dios.',
-    imageUrl: '/images/characters/abraham.jpg',
-    theme: {
-      accent: 'rgba(116, 66, 16, 0.8)',
-      accentHover: 'rgba(116, 66, 16, 0.9)',
-      border: 'rgba(116, 66, 16, 0.3)'
-    }
-  }
-};
+import { useTranslation } from '@/hooks/useTranslation';
 
 // Add type definitions for Web Speech API
 interface SpeechRecognitionEvent extends Event {
@@ -125,6 +63,70 @@ interface Message {
 
 export default function ChatPage() {
   const params = useParams();
+  const { t } = useTranslation();
+  // Character data with translations
+  const characterData = {
+    jesus: {
+      name: t('chatCharacter.characters.jesus.name'),
+      description: t('chatCharacter.characters.jesus.description'),
+      imageUrl: '/images/characters/jesus.avif',
+      theme: {
+        accent: 'rgba(44, 82, 130, 0.8)',
+        accentHover: 'rgba(44, 82, 130, 0.9)',
+        border: 'rgba(44, 82, 130, 0.3)'
+      }
+    },
+    moises: {
+      name: t('chatCharacter.characters.moises.name'),
+      description: t('chatCharacter.characters.moises.description'),
+      imageUrl: '/images/characters/moises.avif',
+      theme: {
+        accent: 'rgba(44, 122, 123, 0.8)',
+        accentHover: 'rgba(44, 122, 123, 0.9)',
+        border: 'rgba(44, 122, 123, 0.3)'
+      }
+    },
+    david: {
+      name: t('chatCharacter.characters.david.name'),
+      description: t('chatCharacter.characters.david.description'),
+      imageUrl: '/images/characters/david.jpg',
+      theme: {
+        accent: 'rgba(85, 60, 154, 0.8)',
+        accentHover: 'rgba(85, 60, 154, 0.9)',
+        border: 'rgba(85, 60, 154, 0.3)'
+      }
+    },
+    maria: {
+      name: t('chatCharacter.characters.maria.name'),
+      description: t('chatCharacter.characters.maria.description'),
+      imageUrl: '/images/characters/maria.jpg',
+      theme: {
+        accent: 'rgba(155, 44, 44, 0.8)',
+        accentHover: 'rgba(155, 44, 44, 0.9)',
+        border: 'rgba(155, 44, 44, 0.3)'
+      }
+    },
+    pablo: {
+      name: t('chatCharacter.characters.pablo.name'),
+      description: t('chatCharacter.characters.pablo.description'),
+      imageUrl: '/images/characters/pablo.avif',
+      theme: {
+        accent: 'rgba(45, 55, 72, 0.8)',
+        accentHover: 'rgba(45, 55, 72, 0.9)',
+        border: 'rgba(45, 55, 72, 0.3)'
+      }
+    },
+    abraham: {
+      name: t('chatCharacter.characters.abraham.name'),
+      description: t('chatCharacter.characters.abraham.description'),
+      imageUrl: '/images/characters/abraham.jpg',
+      theme: {
+        accent: 'rgba(116, 66, 16, 0.8)',
+        accentHover: 'rgba(116, 66, 16, 0.9)',
+        border: 'rgba(116, 66, 16, 0.3)'
+      }
+    }
+  };
   const character = params.character as keyof typeof characterData;
   const data = characterData[character];
   const { userName } = useUserName();
@@ -241,7 +243,7 @@ export default function ChatPage() {
     if (!inputMessage.trim() || isLoading) return;
 
     if (!userName) {
-      setError('Por favor, ingresa tu nombre para continuar');
+      setError(t('chatCharacter.errorNoName'));
       return;
     }
 
@@ -329,7 +331,7 @@ export default function ChatPage() {
               borderColor: data.theme.border
             }}
           >
-            ← Volver
+            {t('chatCharacter.back')}
           </button>
           <MuteButton 
             isSpeaking={isSpeaking}
@@ -345,7 +347,7 @@ export default function ChatPage() {
           <div className={styles.imageContainer} style={{ borderColor: data.theme.border }}>
             <Image
               src={data.imageUrl}
-              alt={data.name}
+              alt={t('chatCharacter.characterImageAlt', { name: data.name })}
               width={80}
               height={80}
               className={styles.characterImage}
@@ -401,7 +403,7 @@ export default function ChatPage() {
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Escribe tu mensaje..."
+            placeholder={t('chatCharacter.messagePlaceholder')}
             className={styles.messageInput}
           />
           <SpeechRecognitionComponent
@@ -419,14 +421,14 @@ export default function ChatPage() {
               borderColor: data.theme.border
             }}
           >
-            Enviar
+            {t('chatCharacter.send')}
           </button>
         </form>
         
         {isRecording && (
           <div className={styles.recordingIndicator}>
             <div className={styles.recordingWave}></div>
-            <span>Grabando... {transcript}</span>
+            <span>{t('chatCharacter.recording', { transcript })}</span>
           </div>
         )}
       </div>

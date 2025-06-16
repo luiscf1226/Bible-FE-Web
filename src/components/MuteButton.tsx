@@ -1,6 +1,7 @@
 // MuteButton.tsx
 import styles from './MuteButton.module.css';
 import { useEffect, useRef } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface MuteButtonProps {
   isSpeaking: boolean;
@@ -17,6 +18,7 @@ export const MuteButton: React.FC<MuteButtonProps> = ({
 }) => {
   // Use ref to track if we should cleanup on unmount
   const shouldCleanupRef = useRef(false);
+  const { t } = useTranslation();
 
   // Only cleanup when component unmounts, not on re-renders
   useEffect(() => {
@@ -39,8 +41,8 @@ export const MuteButton: React.FC<MuteButtonProps> = ({
     <button
       className={`${styles.speakButton} ${className} ${isSpeaking ? styles.speaking : ''}`}
       onClick={onToggle}
-      title={isSpeaking ? "Detener audio" : "Escuchar audio"}
-      aria-label={isSpeaking ? "Detener audio" : "Escuchar audio"}
+      title={isSpeaking ? t('muteButton.stopTitle') : t('muteButton.listenTitle')}
+      aria-label={isSpeaking ? t('muteButton.stopTitle') : t('muteButton.listenTitle')}
       aria-pressed={isSpeaking}
       style={style}
     >
@@ -60,7 +62,7 @@ export const MuteButton: React.FC<MuteButtonProps> = ({
           </svg>
         )}
       </span>
-      <span className={styles.text}>{isSpeaking ? 'Detener' : 'Escuchar'}</span>
+      <span className={styles.text}>{isSpeaking ? t('muteButton.stop') : t('muteButton.listen')}</span>
     </button>
   );
 };
