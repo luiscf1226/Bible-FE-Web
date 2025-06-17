@@ -33,7 +33,8 @@ export const sendCharacterMessage = async (
   userId: string,
   characterName: string,
   message: string,
-  userName: string
+  userName: string,
+  language: 'en' | 'es' = 'es'
 ): Promise<ChatResponse> => {
   const endpoint = 'characterChat';
 
@@ -63,6 +64,7 @@ export const sendCharacterMessage = async (
         user_id: userId,
         character_name: characterName,
         message: message,
+        language,
       } as ChatRequest),
     });
 
@@ -91,7 +93,7 @@ export const sendCharacterMessage = async (
   }
 };
 
-export const getCharacterChat = async (character: string, message: string, userName: string) => {
+export const getCharacterChat = async (character: string, message: string, userName: string, language: 'en' | 'es' = 'es') => {
   const endpoint = 'characterChat';
 
   // Check rate limit
@@ -105,7 +107,7 @@ export const getCharacterChat = async (character: string, message: string, userN
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ character, message }),
+      body: JSON.stringify({ character, message, language }),
     });
 
     if (!response.ok) {

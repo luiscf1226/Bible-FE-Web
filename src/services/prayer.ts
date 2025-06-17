@@ -3,6 +3,7 @@ import { handleRateLimit, incrementRateLimitCount } from '@/contexts/RateLimitCo
 interface PrayerRequest {
   petition: string;
   user_name: string;
+  language: 'en' | 'es';
 }
 
 interface PrayerResponse {
@@ -13,7 +14,7 @@ interface PrayerResponse {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export const generatePrayer = async (petition: string, userName: string): Promise<PrayerResponse> => {
+export const generatePrayer = async (petition: string, userName: string, language: 'en' | 'es' = 'es'): Promise<PrayerResponse> => {
   const endpoint = 'prayer';
 
   // Check rate limit
@@ -42,6 +43,7 @@ export const generatePrayer = async (petition: string, userName: string): Promis
       body: JSON.stringify({
         petition,
         user_name: userName,
+        language,
       } as PrayerRequest),
     });
 

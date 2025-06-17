@@ -18,7 +18,8 @@ export const sendFeelingMessage = async (
   feeling: string,
   text: string,
   userName: string,
-  includeSvg: boolean = false
+  includeSvg: boolean = false,
+  language: 'en' | 'es' = 'es'
 ): Promise<FeelingResponse> => {
   const endpoint = 'feelingChat';
 
@@ -49,6 +50,7 @@ export const sendFeelingMessage = async (
         feeling,
         text,
         include_svg: includeSvg,
+        language,
       } as FeelingRequest),
     });
 
@@ -71,7 +73,7 @@ export const sendFeelingMessage = async (
   }
 };
 
-export const getFeelingChat = async (feeling: string, message: string, userName: string) => {
+export const getFeelingChat = async (feeling: string, message: string, userName: string, language: 'en' | 'es' = 'es') => {
   const endpoint = 'feelingChat';
 
   // Check rate limit
@@ -85,7 +87,7 @@ export const getFeelingChat = async (feeling: string, message: string, userName:
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ feeling, message }),
+      body: JSON.stringify({ feeling, message, language }),
     });
 
     if (!response.ok) {

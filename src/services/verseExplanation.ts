@@ -13,7 +13,7 @@ interface VerseExplanationResponse {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export const getVerseExplanation = async (verse: string, userName: string) => {
+export const getVerseExplanation = async (verse: string, userName: string, language: 'en' | 'es' = 'es') => {
   const endpoint = 'verseExplanation';
 
   // Check rate limit
@@ -27,7 +27,7 @@ export const getVerseExplanation = async (verse: string, userName: string) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ verse }),
+      body: JSON.stringify({ verse, language }),
     });
 
     if (!response.ok) {
@@ -46,7 +46,8 @@ export const getVerseExplanation = async (verse: string, userName: string) => {
 export const getVerseExplanationMultiple = async (
   verses: string[],
   userName: string,
-  verseTexts?: string[]
+  verseTexts?: string[],
+  language: 'en' | 'es' = 'es'
 ): Promise<VerseExplanationResponse> => {
   const endpoint = 'verseExplanationMultiple';
 
@@ -75,6 +76,7 @@ export const getVerseExplanationMultiple = async (
       body: JSON.stringify({
         verses,
         verse_texts: verseTexts,
+        language,
       } as VerseExplanationRequest),
     });
 
