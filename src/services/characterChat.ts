@@ -29,12 +29,22 @@ interface ChatRequest {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+function getUserLanguage(): 'en' | 'es' {
+  if (typeof window !== 'undefined') {
+    const lang = localStorage.getItem('language');
+    if (lang === 'en' || lang === 'es') {
+      return lang;
+    }
+  }
+  return 'es';
+}
+
 export const sendCharacterMessage = async (
   userId: string,
   characterName: string,
   message: string,
   userName: string,
-  language: 'en' | 'es' = 'es'
+  language?: 'en' | 'es'
 ): Promise<ChatResponse> => {
   const endpoint = 'characterChat';
 
@@ -57,6 +67,8 @@ export const sendCharacterMessage = async (
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
+    const langToSend = language || getUserLanguage();
+
     const response = await fetch(`${API_BASE_URL}/bible/characters/chat`, {
       method: 'POST',
       headers,
@@ -64,7 +76,7 @@ export const sendCharacterMessage = async (
         user_id: userId,
         character_name: characterName,
         message: message,
-        language,
+        language: langToSend,
       } as ChatRequest),
     });
 
@@ -93,7 +105,7 @@ export const sendCharacterMessage = async (
   }
 };
 
-export const getCharacterChat = async (character: string, message: string, userName: string, language: 'en' | 'es' = 'es') => {
+export const getCharacterChat = async (character: string, message: string, userName: string, language?: 'en' | 'es') => {
   const endpoint = 'characterChat';
 
   // Check rate limit
@@ -102,12 +114,13 @@ export const getCharacterChat = async (character: string, message: string, userN
   }
 
   try {
+    const langToSend = language || getUserLanguage();
     const response = await fetch('/api/character-chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ character, message, language }),
+      body: JSON.stringify({ character, message, language: langToSend }),
     });
 
     if (!response.ok) {

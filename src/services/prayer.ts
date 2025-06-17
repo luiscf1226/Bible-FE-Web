@@ -14,7 +14,17 @@ interface PrayerResponse {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export const generatePrayer = async (petition: string, userName: string, language: 'en' | 'es' = 'es'): Promise<PrayerResponse> => {
+function getUserLanguage(): 'en' | 'es' {
+  if (typeof window !== 'undefined') {
+    const lang = localStorage.getItem('language');
+    if (lang === 'en' || lang === 'es') {
+      return lang;
+    }
+  }
+  return 'es';
+}
+
+export const generatePrayer = async (petition: string, userName: string, language?: 'en' | 'es'): Promise<PrayerResponse> => {
   const endpoint = 'prayer';
 
   // Check rate limit
@@ -37,13 +47,15 @@ export const generatePrayer = async (petition: string, userName: string, languag
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
+    const langToSend = language || getUserLanguage();
+
     const response = await fetch(`${API_BASE_URL}/prayers/petition`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         petition,
         user_name: userName,
-        language,
+        language: langToSend,
       } as PrayerRequest),
     });
 

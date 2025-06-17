@@ -14,12 +14,22 @@ interface FeelingRequest {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+function getUserLanguage(): 'en' | 'es' {
+  if (typeof window !== 'undefined') {
+    const lang = localStorage.getItem('language');
+    if (lang === 'en' || lang === 'es') {
+      return lang;
+    }
+  }
+  return 'es';
+}
+
 export const sendFeelingMessage = async (
   feeling: string,
   text: string,
   userName: string,
   includeSvg: boolean = false,
-  language: 'en' | 'es' = 'es'
+  language?: 'en' | 'es'
 ): Promise<FeelingResponse> => {
   const endpoint = 'feelingChat';
 
@@ -43,6 +53,8 @@ export const sendFeelingMessage = async (
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
+    const langToSend = language || getUserLanguage();
+
     const response = await fetch(`${API_BASE_URL}/api/v1/feeling?include_svg=${includeSvg}`, {
       method: 'POST',
       headers,
@@ -50,7 +62,7 @@ export const sendFeelingMessage = async (
         feeling,
         text,
         include_svg: includeSvg,
-        language,
+        language: langToSend,
       } as FeelingRequest),
     });
 
@@ -73,7 +85,7 @@ export const sendFeelingMessage = async (
   }
 };
 
-export const getFeelingChat = async (feeling: string, message: string, userName: string, language: 'en' | 'es' = 'es') => {
+export const getFeelingChat = async (feeling: string, message: string, userName: string, language?: 'en' | 'es') => {
   const endpoint = 'feelingChat';
 
   // Check rate limit
@@ -82,12 +94,13 @@ export const getFeelingChat = async (feeling: string, message: string, userName:
   }
 
   try {
+    const langToSend = language || getUserLanguage();
     const response = await fetch('/api/feeling-chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ feeling, message, language }),
+      body: JSON.stringify({ feeling, message, language: langToSend }),
     });
 
     if (!response.ok) {

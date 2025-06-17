@@ -13,7 +13,17 @@ interface VerseExplanationResponse {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-export const getVerseExplanation = async (verse: string, userName: string, language: 'en' | 'es' = 'es') => {
+function getUserLanguage(): 'en' | 'es' {
+  if (typeof window !== 'undefined') {
+    const lang = localStorage.getItem('language');
+    if (lang === 'en' || lang === 'es') {
+      return lang;
+    }
+  }
+  return 'es';
+}
+
+export const getVerseExplanation = async (verse: string, userName: string, language?: 'en' | 'es') => {
   const endpoint = 'verseExplanation';
 
   // Check rate limit
@@ -22,12 +32,13 @@ export const getVerseExplanation = async (verse: string, userName: string, langu
   }
 
   try {
+    const langToSend = language || getUserLanguage();
     const response = await fetch('/api/verse-explanation', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ verse, language }),
+      body: JSON.stringify({ verse, language: langToSend }),
     });
 
     if (!response.ok) {
@@ -47,7 +58,7 @@ export const getVerseExplanationMultiple = async (
   verses: string[],
   userName: string,
   verseTexts?: string[],
-  language: 'en' | 'es' = 'es'
+  language?: 'en' | 'es'
 ): Promise<VerseExplanationResponse> => {
   const endpoint = 'verseExplanationMultiple';
 
@@ -70,13 +81,15 @@ export const getVerseExplanationMultiple = async (
       'X-API-Key': process.env.NEXT_PUBLIC_API_KEY,
     };
 
+    const langToSend = language || getUserLanguage();
+
     const response = await fetch(`${API_BASE_URL}/verses/explain`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
         verses,
         verse_texts: verseTexts,
-        language,
+        language: langToSend,
       } as VerseExplanationRequest),
     });
 
