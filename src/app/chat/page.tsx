@@ -170,20 +170,7 @@ export default function ChatPage() {
 
         setMessages(prev => [...prev, botMessage]);
         
-        // Speak the response with proper pauses if not muted
-        if (!isSpeaking) {
-          const textToSpeak = response.verse 
-            ? `${response.verse}. ${response.devotional}`
-            : response.devotional;
-          
-          // Stop any ongoing speech before starting new one
-          stop();
-          
-          // Add a small delay before speaking to ensure the message is displayed
-          setTimeout(() => {
-            speak(textToSpeak);
-          }, 100);
-        }
+        // No automatic speech playback. Only play when user presses the MuteButton.
       }
     } catch (error: any) {
       if (error.message.includes('Rate limit exceeded')) {

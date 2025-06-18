@@ -9,6 +9,8 @@ import { useUserName } from '@/contexts/UserNameContext';
 import { useRateLimit } from '@/contexts/RateLimitContext';
 import SpeechRecognitionComponent from '@/components/SpeechRecognition';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSpeechSynthesis } from '@/components/SpeechSynthesis';
+import MuteButton from '@/components/MuteButton';
 
 // Add type definitions for Web Speech API
 interface SpeechRecognitionEvent extends Event {
@@ -66,6 +68,7 @@ export default function PrayerPage() {
   const { userName } = useUserName();
   const { checkEndpointLimit } = useRateLimit();
   const { t } = useTranslation();
+  const { speak, stop, isSpeaking } = useSpeechSynthesis();
 
   const handleTranscriptChange = (newTranscript: string) => {
     setTranscript(newTranscript);
@@ -102,14 +105,6 @@ export default function PrayerPage() {
       setError(err instanceof Error ? err.message : t('prayer.errorGeneric'));
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleSpeak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'es-ES';
-      window.speechSynthesis.speak(utterance);
     }
   };
 
@@ -236,13 +231,18 @@ export default function PrayerPage() {
                 <span className={styles.prayerIcon}>✨</span>
                 <h2>{t('prayer.personalizedTitle')}</h2>
               </div>
-              <button 
+              <MuteButton
+                isSpeaking={isSpeaking}
+                onToggle={() => {
+                  if (isSpeaking) {
+                    stop();
+                  } else {
+                    speak(generatedPrayer.prayer);
+                  }
+                }}
                 className={styles.speakButton}
-                onClick={() => handleSpeak(generatedPrayer.prayer)}
-                title={t('prayer.listen')}
-              >
-                🔊
-              </button>
+                style={{ marginLeft: 8 }}
+              />
             </div>
             <div className={styles.prayerContent}>
               <p className={styles.prayerText}>{generatedPrayer.prayer}</p>

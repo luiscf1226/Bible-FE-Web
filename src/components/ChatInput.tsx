@@ -25,7 +25,7 @@ export default function ChatInput({
   transcript = ''
 }: ChatInputProps) {
   const [message, setMessage] = useState('');
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   // Update message when transcript changes
   useEffect(() => {
@@ -64,7 +64,13 @@ export default function ChatInput({
           borderColor: theme.border
         } : undefined}
       >
-        {t('chatInput.send')}
+        {(() => {
+          const label = t('chatInput.send');
+          if (label === 'chatInput.send') {
+            return language === 'es' ? 'Enviar' : 'Send';
+          }
+          return label;
+        })()}
       </button>
     </form>
   );

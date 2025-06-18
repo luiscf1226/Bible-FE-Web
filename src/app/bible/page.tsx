@@ -303,12 +303,6 @@ export default function BibleReader() {
 
       const result = await getVerseExplanationMultiple(formattedVerses, userName, verseTexts);
       setResponse(result.explanation);
-
-      // Speak the explanation
-      stop(); // Stop any ongoing speech
-      setTimeout(() => {
-        speak(result.explanation);
-      }, 100);
     } catch (error) {
       //console.error('Error getting verse explanation:', error);
       if (error instanceof Error) {
@@ -499,9 +493,6 @@ export default function BibleReader() {
 
         {selectedVerses.length > 0 && !showExplanation && (
           <div className={styles.selectionInfo}>
-            <span>
-              {t('bible.versesSelected', { count: selectedVerses.length })}
-            </span>
             <button onClick={() => setShowExplanation(true)}>
               {t('bible.writeExplanation')}
             </button>
@@ -519,9 +510,6 @@ export default function BibleReader() {
           >
             {!response ? (
               <>
-                <div className={styles.selectedVersesInfo}>
-                  {t('bible.versesSelected', { count: selectedVerses.length })}
-                </div>
                 <div className={styles.explanationActions}>
                   <button 
                     className={styles.explanationButton}

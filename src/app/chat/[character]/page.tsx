@@ -270,13 +270,7 @@ export default function ChatPage() {
 
       setMessages(prev => [...prev, characterMessage]);
 
-      // Speak the character's response if not muted
-      if (!isMuted) {
-        stop(); // Stop any ongoing speech
-        setTimeout(() => {
-          speak(response.response);
-        }, 100);
-      }
+      // No automatic speech playback. Only play when user presses the MuteButton.
 
       // Update character info if available
       if (response.character_info) {
